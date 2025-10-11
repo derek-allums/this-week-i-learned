@@ -261,7 +261,7 @@ window.Quarto = {
 <p>Let’s visualize this in 2D (two coefficients: <span class="math inline">\(w_1\)</span> and <span class="math inline">\(w_2\)</span>). We can reframe the optimization as a constrained problem:</p>
 <p><strong>Minimize the loss subject to:</strong> - L₁: <span class="math inline">\(|w_1| + |w_2| \leq t\)</span> - L₂: <span class="math inline">\(w_1^2 + w_2^2 \leq t\)</span></p>
 <p>Here’s what these constraint regions look like:</p>
-<div id="9e70780f" class="cell" data-execution_count="1">
+<div id="52416ba9" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -317,7 +317,7 @@ window.Quarto = {
 <section id="where-solutions-live" class="level2">
 <h2 class="anchored" data-anchor-id="where-solutions-live">Where Solutions Live</h2>
 <p>The optimal solution occurs where the loss function contours (ellipses centered at the unconstrained minimum) first touch the constraint region.</p>
-<div id="dcbdf1b4" class="cell" data-execution_count="2">
+<div id="a30998e9" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Loss function contours (ellipses centered away from origin)</span></span>
@@ -379,7 +379,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="why-corners-matter">Why Corners Matter</h2>
 <p>Think of it this way: in 2D, the L₁ diamond has 4 corners (one on each axis). As you increase dimensions, the number of corners grows exponentially. In <span class="math inline">\(n\)</span> dimensions, there are <span class="math inline">\(2n\)</span> corners, each representing a solution where <span class="math inline">\((n-1)\)</span> coefficients are zero.</p>
 <p>The L₂ sphere has no corners in any dimension — it’s perfectly smooth everywhere.</p>
-<div id="a81ded65" class="cell" data-execution_count="3">
+<div id="515d22ec" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Probability of hitting a corner vs dimension</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>dimensions <span class="op">=</span> np.arange(<span class="dv">2</span>, <span class="dv">21</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -425,7 +425,7 @@ window.Quarto = {
 \frac{\partial}{\partial w_i} w_i^2 = 2w_i
 \]</span></p>
 <p>As <span class="math inline">\(w_i\)</span> approaches zero, the gradient also approaches zero. The “push” weakens, so coefficients get very small but never quite reach zero.</p>
-<div id="a0059304" class="cell" data-execution_count="4">
+<div id="eacffda5" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the penalty and gradient behavior</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1000</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>l1_penalty <span class="op">=</span> np.<span class="bu">abs</span>(w)</span>
@@ -477,7 +477,7 @@ window.Quarto = {
 <section id="real-example-sparse-vs-dense-solutions" class="level2">
 <h2 class="anchored" data-anchor-id="real-example-sparse-vs-dense-solutions">Real Example: Sparse vs Dense Solutions</h2>
 <p>Let’s see this in action with actual regression:</p>
-<div id="b34991bb" class="cell" data-execution_count="5">
+<div id="1438b792" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> Lasso, Ridge</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> make_regression</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>

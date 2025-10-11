@@ -11,28 +11,28 @@
     "href": "posts/temperature-llms/index.html",
     "title": "How Temperature Actually Works in LLMs",
     "section": "",
-    "text": "Every time you use an LLM, there’s a parameter called “temperature” hiding in the background, fundamentally shaping how creative or conservative the responses are. But what’s actually happening under the hood?\nToday we’re diving deep into the mathematics and implementation of temperature in language models."
+    "text": "Every time you use an LLM, there’s a parameter called “temperature” typically set at \\(0.7\\) or even hidden from the user, fundamentally shaping how creative or conservative the responses are.\nBut what’s actually happening under the hood?"
   },
   {
     "objectID": "posts/temperature-llms/index.html#introduction",
     "href": "posts/temperature-llms/index.html#introduction",
     "title": "How Temperature Actually Works in LLMs",
     "section": "",
-    "text": "Every time you use an LLM, there’s a parameter called “temperature” hiding in the background, fundamentally shaping how creative or conservative the responses are. But what’s actually happening under the hood?\nToday we’re diving deep into the mathematics and implementation of temperature in language models."
+    "text": "Every time you use an LLM, there’s a parameter called “temperature” typically set at \\(0.7\\) or even hidden from the user, fundamentally shaping how creative or conservative the responses are.\nBut what’s actually happening under the hood?"
   },
   {
     "objectID": "posts/temperature-llms/index.html#the-core-problem-probability-distributions",
     "href": "posts/temperature-llms/index.html#the-core-problem-probability-distributions",
     "title": "How Temperature Actually Works in LLMs",
     "section": "The Core Problem: Probability Distributions",
-    "text": "The Core Problem: Probability Distributions\nAt its heart, a language model outputs a probability distribution over its vocabulary for the next token. Let’s say we have a simple vocabulary of 4 words:\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Raw logits from the model\nlogits = np.array([2.0, 1.0, 0.5, 0.1])\nvocab = ['the', 'a', 'an', 'some']\n\n# Convert to probabilities with softmax\ndef softmax(x):\n    exp_x = np.exp(x - np.max(x))  # Subtract max for numerical stability\n    return exp_x / exp_x.sum()\n\nprobs = softmax(logits)\n\n# Visualize\nplt.figure(figsize=(10, 5))\nplt.bar(vocab, probs, color='steelblue')\nplt.ylabel('Probability')\nplt.title('Token Probabilities (Temperature = 1.0)')\nplt.ylim(0, 1)\nfor i, (word, prob) in enumerate(zip(vocab, probs)):\n    plt.text(i, prob + 0.02, f'{prob:.3f}', ha='center')\nplt.show()\n\n\n\n\n\n\n\n\nThe model might assign probabilities like: the: 0.52, a: 0.29, an: 0.13, some: 0.06"
+    "text": "The Core Problem: Probability Distributions\nAt its core, a language model outputs a probability distribution over its vocabulary for the next token.\nHere’s a toy exmaple on a simple vocabulary of 4 words:\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Raw logits from the model\nlogits = np.array([2.0, 1.0, 0.5, 0.1])\nvocab = ['the', 'a', 'an', 'some']\n\n# Convert to probabilities with softmax\ndef softmax(x):\n    exp_x = np.exp(x - np.max(x))  # Subtract max for numerical stability\n    return exp_x / exp_x.sum()\n\nprobs = softmax(logits)\n\n# Visualize\nplt.figure(figsize=(10, 5))\nplt.bar(vocab, probs, color='steelblue')\nplt.ylabel('Probability')\nplt.title('Token Probabilities (Temperature = 1.0)')\nplt.ylim(0, 1)\nfor i, (word, prob) in enumerate(zip(vocab, probs)):\n    plt.text(i, prob + 0.02, f'{prob:.3f}', ha='center')\nplt.show()\n\n\n\n\n\n\n\n\nThe model might assign probabilities like: the: 0.52, a: 0.29, an: 0.13, some: 0.06"
   },
   {
     "objectID": "posts/temperature-llms/index.html#the-mathematics-of-temperature",
     "href": "posts/temperature-llms/index.html#the-mathematics-of-temperature",
     "title": "How Temperature Actually Works in LLMs",
     "section": "The Mathematics of Temperature",
-    "text": "The Mathematics of Temperature\nTemperature \\(T\\) is applied before the softmax function. The modified softmax becomes:\n\\[\nP(x_i) = \\frac{e^{z_i/T}}{\\sum_{j=1}^{n} e^{z_j/T}}\n\\]\nWhere: - \\(z_i\\) are the raw logits from the model - \\(T\\) is the temperature parameter - \\(P(x_i)\\) is the probability of token \\(i\\)\n\nWhat Different Temperatures Do\n\ndef softmax_with_temperature(logits, temperature):\n    scaled_logits = logits / temperature\n    return softmax(scaled_logits)\n\ntemperatures = [0.1, 0.5, 1.0, 2.0, 5.0]\n\nfig, axes = plt.subplots(2, 3, figsize=(15, 8))\naxes = axes.flatten()\n\nfor idx, temp in enumerate(temperatures):\n    probs_temp = softmax_with_temperature(logits, temp)\n    \n    axes[idx].bar(vocab, probs_temp, color='steelblue')\n    axes[idx].set_ylabel('Probability')\n    axes[idx].set_title(f'Temperature = {temp}')\n    axes[idx].set_ylim(0, 1)\n    \n    for i, (word, prob) in enumerate(zip(vocab, probs_temp)):\n        axes[idx].text(i, prob + 0.02, f'{prob:.3f}', ha='center', fontsize=9)\n\n# Remove extra subplot\nfig.delaxes(axes[5])\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\nThe Entropy Perspective\nWe can measure the “randomness” of a distribution using entropy:\n\\[\nH(P) = -\\sum_{i=1}^{n} P(x_i) \\log P(x_i)\n\\]\nHigher temperature → higher entropy → more random outputs\n\ndef entropy(probs):\n    return -np.sum(probs * np.log(probs + 1e-10))\n\ntemp_range = np.linspace(0.1, 5.0, 100)\nentropies = [entropy(softmax_with_temperature(logits, t)) for t in temp_range]\n\nplt.figure(figsize=(10, 5))\nplt.plot(temp_range, entropies, linewidth=2, color='darkred')\nplt.xlabel('Temperature')\nplt.ylabel('Entropy (bits)')\nplt.title('How Temperature Affects Distribution Entropy')\nplt.grid(alpha=0.3)\nplt.show()"
+    "text": "The Mathematics of Temperature\nTemperature \\(T\\) is applied before the softmax function. The modified softmax becomes:\n\\[\nP(x_i) = \\frac{e^{z_i/T}}{\\sum_{j=1}^{n} e^{z_j/T}}\n\\]\nWhere: - \\(z_i\\) are the raw logits from the model - \\(T\\) is the temperature parameter - \\(P(x_i)\\) is the probability of token \\(i\\)\nFor those famiilar with, e.g., OpenAI’s API, you’re immediately wondering “wait I thought it was between 0 and 2? This could be between \\(\\epsilon &gt; 0\\) and \\(\\infty\\).” True - they basically normalize these values.\n\nWhat Different Temperatures Do\nOne way to think about this is it’s basically a dampening effect. When we say “creativity” we mean (I guess) “randomness”. Conversely, “deterministic” is just that.\n\ndef softmax_with_temperature(logits, temperature):\n    scaled_logits = logits / temperature\n    return softmax(scaled_logits)\n\ntemperatures = [0.1, 0.5, 1.0, 2.0, 5.0]\n\nfig, axes = plt.subplots(2, 3, figsize=(15, 8))\naxes = axes.flatten()\n\nfor idx, temp in enumerate(temperatures):\n    probs_temp = softmax_with_temperature(logits, temp)\n    \n    axes[idx].bar(vocab, probs_temp, color='steelblue')\n    axes[idx].set_ylabel('Probability')\n    axes[idx].set_title(f'Temperature = {temp}')\n    axes[idx].set_ylim(0, 1)\n    \n    for i, (word, prob) in enumerate(zip(vocab, probs_temp)):\n        axes[idx].text(i, prob + 0.02, f'{prob:.3f}', ha='center', fontsize=9)\n\n# Remove extra subplot\nfig.delaxes(axes[5])\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\nThe Entropy Perspective\nContinuing the comments above, we can sort of formalize this with entropy, thinking of it as a measure of the “randomness” of a distribution:\n\\[\nH(P) = -\\sum_{i=1}^{n} P(x_i) \\log P(x_i)\n\\]\nHigher temperature → higher entropy → more random outputs\n\ndef entropy(probs):\n    return -np.sum(probs * np.log(probs + 1e-10))\n\ntemp_range = np.linspace(0.1, 5.0, 100)\nentropies = [entropy(softmax_with_temperature(logits, t)) for t in temp_range]\n\nplt.figure(figsize=(10, 5))\nplt.plot(temp_range, entropies, linewidth=2, color='darkred')\nplt.xlabel('Temperature')\nplt.ylabel('Entropy (bits)')\nplt.title('How Temperature Affects Distribution Entropy')\nplt.grid(alpha=0.3)\nplt.show()"
   },
   {
     "objectID": "posts/temperature-llms/index.html#real-implementation",
@@ -46,21 +46,14 @@
     "href": "posts/temperature-llms/index.html#edge-cases",
     "title": "How Temperature Actually Works in LLMs",
     "section": "Edge Cases",
-    "text": "Edge Cases\nTemperature = 0: Not technically possible (division by zero), but temperature → 0 approximates greedy decoding (always pick the highest probability token).\nTemperature &lt; 1: “Sharpens” the distribution, making high-probability tokens even more likely.\nTemperature = 1: No modification, the original model distribution.\nTemperature &gt; 1: “Flattens” the distribution, giving lower-probability tokens more chance."
+    "text": "Edge Cases\nTemperature = 0: Not technically possible (division by zero), but temperature → 0 approximates greedy decoding (always pick the highest probability token). Thinking back to teh definition and exmaples above, you basically exaggerate the differences in probabilities between the next tokens, so that eventually it’s deterministic or very close to it.\nTemperature &lt; 1: “Sharpens” the distribution, making high-probability tokens even more likely.\nTemperature = 1: No modification, the original model distribution.\nTemperature &gt; 1: “Flattens” the distribution, giving lower-probability tokens more chance."
   },
   {
     "objectID": "posts/temperature-llms/index.html#practical-guidelines",
     "href": "posts/temperature-llms/index.html#practical-guidelines",
     "title": "How Temperature Actually Works in LLMs",
     "section": "Practical Guidelines",
-    "text": "Practical Guidelines\nFrom my experiments with various models:\n\nT = 0.1-0.3: Factual tasks, code generation, when you need consistency\nT = 0.7-0.9: General conversation, slight creativity\nT = 1.0-1.5: Creative writing, brainstorming\nT = 2.0+: Experimental/chaotic, rarely useful"
-  },
-  {
-    "objectID": "posts/temperature-llms/index.html#conclusion",
-    "href": "posts/temperature-llms/index.html#conclusion",
-    "title": "How Temperature Actually Works in LLMs",
-    "section": "Conclusion",
-    "text": "Conclusion\nTemperature is deceptively simple - just one division operation - but it gives us fine-grained control over the exploration/exploitation tradeoff in language generation. Understanding the mathematical foundation helps you know exactly when and how to tune it.\nNext week: How Go channels actually work under the hood (spoiler: there’s a mutex and a circular buffer involved).\n\nFound this useful? Let me know what deep dive you’d like to see next."
+    "text": "Practical Guidelines\nHere are some guidelines that you can find all over the internet (referencing the OpenAI normalized values). Better heuristics are available as well.\n\nT = 0.1-0.3: Factual tasks, code generation, when you need consistency\nT = 0.7-0.9: General conversation, slight creativity\nT = 1.0-1.5: Creative writing, brainstorming\nT = 2.0+: Experimental/chaotic, rarely useful"
   },
   {
     "objectID": "posts/l1-versus-l2/index.html",

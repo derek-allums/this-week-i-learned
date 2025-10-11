@@ -191,7 +191,6 @@ window.Quarto = {
   <li><a href="#real-implementation" id="toc-real-implementation" class="nav-link" data-scroll-target="#real-implementation">Real Implementation</a></li>
   <li><a href="#edge-cases" id="toc-edge-cases" class="nav-link" data-scroll-target="#edge-cases">Edge Cases</a></li>
   <li><a href="#practical-guidelines" id="toc-practical-guidelines" class="nav-link" data-scroll-target="#practical-guidelines">Practical Guidelines</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
     </div>
@@ -237,13 +236,14 @@ window.Quarto = {
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Every time you use an LLM, there’s a parameter called “temperature” hiding in the background, fundamentally shaping how creative or conservative the responses are. But what’s actually happening under the hood?</p>
-<p>Today we’re diving deep into the mathematics and implementation of temperature in language models.</p>
+<p>Every time you use an LLM, there’s a parameter called “temperature” typically set at <span class="math inline">\(0.7\)</span> or even hidden from the user, fundamentally shaping how creative or conservative the responses are.</p>
+<p>But what’s actually happening under the hood?</p>
 </section>
 <section id="the-core-problem-probability-distributions" class="level2">
 <h2 class="anchored" data-anchor-id="the-core-problem-probability-distributions">The Core Problem: Probability Distributions</h2>
-<p>At its heart, a language model outputs a probability distribution over its vocabulary for the next token. Let’s say we have a simple vocabulary of 4 words:</p>
-<div id="e4a3e505" class="cell" data-execution_count="1">
+<p>At its core, a language model outputs a probability distribution over its vocabulary for the next token.</p>
+<p>Here’s a toy exmaple on a simple vocabulary of 4 words:</p>
+<div id="8c8b05a8" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -284,9 +284,11 @@ window.Quarto = {
 P(x_i) = \frac{e^{z_i/T}}{\sum_{j=1}^{n} e^{z_j/T}}
 \]</span></p>
 <p>Where: - <span class="math inline">\(z_i\)</span> are the raw logits from the model - <span class="math inline">\(T\)</span> is the temperature parameter - <span class="math inline">\(P(x_i)\)</span> is the probability of token <span class="math inline">\(i\)</span></p>
+<p>For those famiilar with, e.g., OpenAI’s API, you’re immediately wondering “wait I thought it was between 0 and 2? This could be between <span class="math inline">\(\epsilon &gt; 0\)</span> and <span class="math inline">\(\infty\)</span>.” True - they basically normalize these values.</p>
 <section id="what-different-temperatures-do" class="level3">
 <h3 class="anchored" data-anchor-id="what-different-temperatures-do">What Different Temperatures Do</h3>
-<div id="b5a0fd65" class="cell" data-execution_count="2">
+<p>One way to think about this is it’s basically a dampening effect. When we say “creativity” we mean (I guess) “randomness”. Conversely, “deterministic” is just that.</p>
+<div id="0c5efcd9" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax_with_temperature(logits, temperature):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    scaled_logits <span class="op">=</span> logits <span class="op">/</span> temperature</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> softmax(scaled_logits)</span>
@@ -322,12 +324,12 @@ P(x_i) = \frac{e^{z_i/T}}{\sum_{j=1}^{n} e^{z_j/T}}
 </section>
 <section id="the-entropy-perspective" class="level3">
 <h3 class="anchored" data-anchor-id="the-entropy-perspective">The Entropy Perspective</h3>
-<p>We can measure the “randomness” of a distribution using entropy:</p>
+<p>Continuing the comments above, we can sort of formalize this with entropy, thinking of it as a measure of the “randomness” of a distribution:</p>
 <p><span class="math display">\[
 H(P) = -\sum_{i=1}^{n} P(x_i) \log P(x_i)
 \]</span></p>
 <p>Higher temperature → higher entropy → more random outputs</p>
-<div id="1a6cfc01" class="cell" data-execution_count="3">
+<div id="c7056c56" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> entropy(probs):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>np.<span class="bu">sum</span>(probs <span class="op">*</span> np.log(probs <span class="op">+</span> <span class="fl">1e-10</span>))</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -397,27 +399,20 @@ H(P) = -\sum_{i=1}^{n} P(x_i) \log P(x_i)
 </section>
 <section id="edge-cases" class="level2">
 <h2 class="anchored" data-anchor-id="edge-cases">Edge Cases</h2>
-<p><strong>Temperature = 0:</strong> Not technically possible (division by zero), but <code>temperature → 0</code> approximates <strong>greedy decoding</strong> (always pick the highest probability token).</p>
+<p><strong>Temperature = 0:</strong> Not technically possible (division by zero), but <code>temperature → 0</code> approximates <strong>greedy decoding</strong> (always pick the highest probability token). Thinking back to teh definition and exmaples above, you basically exaggerate the differences in probabilities between the next tokens, so that eventually it’s deterministic or very close to it.</p>
 <p><strong>Temperature &lt; 1:</strong> “Sharpens” the distribution, making high-probability tokens even more likely.</p>
 <p><strong>Temperature = 1:</strong> No modification, the original model distribution.</p>
 <p><strong>Temperature &gt; 1:</strong> “Flattens” the distribution, giving lower-probability tokens more chance.</p>
 </section>
 <section id="practical-guidelines" class="level2">
 <h2 class="anchored" data-anchor-id="practical-guidelines">Practical Guidelines</h2>
-<p>From my experiments with various models:</p>
+<p>Here are some guidelines that you can find all over the internet (referencing the OpenAI normalized values). Better heuristics are available as well.</p>
 <ul>
 <li><strong>T = 0.1-0.3:</strong> Factual tasks, code generation, when you need consistency</li>
 <li><strong>T = 0.7-0.9:</strong> General conversation, slight creativity</li>
 <li><strong>T = 1.0-1.5:</strong> Creative writing, brainstorming</li>
 <li><strong>T = 2.0+:</strong> Experimental/chaotic, rarely useful</li>
 </ul>
-</section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>Temperature is deceptively simple - just one division operation - but it gives us fine-grained control over the exploration/exploitation tradeoff in language generation. Understanding the mathematical foundation helps you know exactly when and how to tune it.</p>
-<p>Next week: How Go channels actually work under the hood (spoiler: there’s a mutex and a circular buffer involved).</p>
-<hr>
-<p><em>Found this useful? Let me know what deep dive you’d like to see next.</em></p>
 
 
 </section>
