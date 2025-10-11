@@ -243,7 +243,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="the-core-problem-probability-distributions">The Core Problem: Probability Distributions</h2>
 <p>At its core, a language model outputs a probability distribution over its vocabulary for the next token.</p>
 <p>Here’s a toy exmaple on a simple vocabulary of 4 words:</p>
-<div id="8c8b05a8" class="cell" data-execution_count="1">
+<div id="52a2a4aa" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -288,7 +288,7 @@ P(x_i) = \frac{e^{z_i/T}}{\sum_{j=1}^{n} e^{z_j/T}}
 <section id="what-different-temperatures-do" class="level3">
 <h3 class="anchored" data-anchor-id="what-different-temperatures-do">What Different Temperatures Do</h3>
 <p>One way to think about this is it’s basically a dampening effect. When we say “creativity” we mean (I guess) “randomness”. Conversely, “deterministic” is just that.</p>
-<div id="0c5efcd9" class="cell" data-execution_count="2">
+<div id="7d9264d5" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax_with_temperature(logits, temperature):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    scaled_logits <span class="op">=</span> logits <span class="op">/</span> temperature</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> softmax(scaled_logits)</span>
@@ -329,7 +329,7 @@ P(x_i) = \frac{e^{z_i/T}}{\sum_{j=1}^{n} e^{z_j/T}}
 H(P) = -\sum_{i=1}^{n} P(x_i) \log P(x_i)
 \]</span></p>
 <p>Higher temperature → higher entropy → more random outputs</p>
-<div id="c7056c56" class="cell" data-execution_count="3">
+<div id="9d700288" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> entropy(probs):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>np.<span class="bu">sum</span>(probs <span class="op">*</span> np.log(probs <span class="op">+</span> <span class="fl">1e-10</span>))</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>

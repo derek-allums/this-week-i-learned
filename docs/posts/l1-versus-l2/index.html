@@ -185,11 +185,7 @@ window.Quarto = {
   <li><a href="#the-setup-what-are-we-optimizing" id="toc-the-setup-what-are-we-optimizing" class="nav-link" data-scroll-target="#the-setup-what-are-we-optimizing">The Setup: What Are We Optimizing?</a></li>
   <li><a href="#the-geometric-intuition" id="toc-the-geometric-intuition" class="nav-link" data-scroll-target="#the-geometric-intuition">The Geometric Intuition</a></li>
   <li><a href="#where-solutions-live" id="toc-where-solutions-live" class="nav-link" data-scroll-target="#where-solutions-live">Where Solutions Live</a></li>
-  <li><a href="#why-corners-matter" id="toc-why-corners-matter" class="nav-link" data-scroll-target="#why-corners-matter">Why Corners Matter</a></li>
   <li><a href="#the-gradient-perspective" id="toc-the-gradient-perspective" class="nav-link" data-scroll-target="#the-gradient-perspective">The Gradient Perspective</a></li>
-  <li><a href="#real-example-sparse-vs-dense-solutions" id="toc-real-example-sparse-vs-dense-solutions" class="nav-link" data-scroll-target="#real-example-sparse-vs-dense-solutions">Real Example: Sparse vs Dense Solutions</a></li>
-  <li><a href="#when-to-use-each" id="toc-when-to-use-each" class="nav-link" data-scroll-target="#when-to-use-each">When to Use Each</a></li>
-  <li><a href="#the-bottom-line" id="toc-the-bottom-line" class="nav-link" data-scroll-target="#the-bottom-line">The Bottom Line</a></li>
   </ul>
 </nav>
     </div>
@@ -238,8 +234,7 @@ window.Quarto = {
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But <em>why</em> does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer lies in geometry.</p>
-<p>Today we’re diving into the geometric intuition behind why L₁ (Lasso) can eliminate features entirely, while L₂ (Ridge) cannot.</p>
+<p>If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But <em>why</em> does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer is geometry.</p>
 </section>
 <section id="the-setup-what-are-we-optimizing" class="level2">
 <h2 class="anchored" data-anchor-id="the-setup-what-are-we-optimizing">The Setup: What Are We Optimizing?</h2>
@@ -255,13 +250,14 @@ window.Quarto = {
 \text{Penalty}_{\text{L2}} = \sum_{i=1}^{n} w_i^2
 \]</span></p>
 <p>The key question: why does one drive coefficients to exactly zero while the other doesn’t?</p>
+<p>Note there is good discussion of this all over the interent (https://stats.stackexchange.com/questions/96046/why-l1-norm-can-result-in-variable-selection-but-not-l2) and notably in Elements of Statistical Learning as well (which that posts references).</p>
 </section>
 <section id="the-geometric-intuition" class="level2">
 <h2 class="anchored" data-anchor-id="the-geometric-intuition">The Geometric Intuition</h2>
 <p>Let’s visualize this in 2D (two coefficients: <span class="math inline">\(w_1\)</span> and <span class="math inline">\(w_2\)</span>). We can reframe the optimization as a constrained problem:</p>
-<p><strong>Minimize the loss subject to:</strong> - L₁: <span class="math inline">\(|w_1| + |w_2| \leq t\)</span> - L₂: <span class="math inline">\(w_1^2 + w_2^2 \leq t\)</span></p>
-<p>Here’s what these constraint regions look like:</p>
-<div id="52416ba9" class="cell" data-execution_count="1">
+<p><strong>Minimize the loss subject to:</strong> <span class="math display">\[ L_1: |w_1| + |w_2| \leq t \]</span> <span class="math display">\[ L_2: w_1^2 + w_2^2 \leq t \]</span></p>
+<p>Running some boilerplate code below gives us the diagram that follows</p>
+<div id="9f021dfc" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -312,103 +308,17 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Notice the key difference: - <strong>L₁ constraint = Diamond shape</strong> with sharp corners at the axes - <strong>L₂ constraint = Circle</strong> with no corners</p>
+<p>Nothing surprising here, just a buch of code to tell us that the formula already does: one is a square, one is a circle. Why is that important?</p>
 </section>
 <section id="where-solutions-live" class="level2">
 <h2 class="anchored" data-anchor-id="where-solutions-live">Where Solutions Live</h2>
-<p>The optimal solution occurs where the loss function contours (ellipses centered at the unconstrained minimum) first touch the constraint region.</p>
-<div id="a30998e9" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>))</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Loss function contours (ellipses centered away from origin)</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>center_x, center_y <span class="op">=</span> <span class="fl">0.8</span>, <span class="fl">0.6</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create elliptical contours</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>theta <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span><span class="op">*</span>np.pi, <span class="dv">100</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> scale <span class="kw">in</span> [<span class="fl">0.3</span>, <span class="fl">0.6</span>, <span class="fl">0.9</span>]:</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    ellipse_x <span class="op">=</span> center_x <span class="op">+</span> scale <span class="op">*</span> <span class="fl">0.8</span> <span class="op">*</span> np.cos(theta)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    ellipse_y <span class="op">=</span> center_y <span class="op">+</span> scale <span class="op">*</span> <span class="fl">0.6</span> <span class="op">*</span> np.sin(theta)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    ax1.plot(ellipse_x, ellipse_y, <span class="st">'g--'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    ax2.plot(ellipse_x, ellipse_y, <span class="st">'g--'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># L1 constraint</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>ax1.fill(w1_l1, w2_l1, alpha<span class="op">=</span><span class="fl">0.2</span>, color<span class="op">=</span><span class="st">'blue'</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>ax1.plot(w1_l1, w2_l1, <span class="st">'b-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'L₁ constraint'</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>ax1.plot(<span class="dv">1</span>, <span class="dv">0</span>, <span class="st">'ro'</span>, markersize<span class="op">=</span><span class="dv">12</span>, label<span class="op">=</span><span class="st">'Solution (sparse!)'</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>ax1.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>ax1.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'w₁'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'w₂'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'L₁: Solution hits corner → w₂ = 0'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>ax1.set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.5</span>)</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>ax1.set_ylim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.2</span>)</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>ax1.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>ax1.legend()</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># L2 constraint</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>ax2.fill(w1_l2, w2_l2, alpha<span class="op">=</span><span class="fl">0.2</span>, color<span class="op">=</span><span class="st">'red'</span>)</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>ax2.plot(w1_l2, w2_l2, <span class="st">'r-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'L₂ constraint'</span>)</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>ax2.plot(<span class="fl">0.65</span>, <span class="fl">0.48</span>, <span class="st">'ro'</span>, markersize<span class="op">=</span><span class="dv">12</span>, label<span class="op">=</span><span class="st">'Solution (both non-zero)'</span>)</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>ax2.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>ax2.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'w₁'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'w₂'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'L₂: Solution on smooth curve → all w ≠ 0'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>ax2.set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.5</span>)</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>ax2.set_ylim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.2</span>)</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>ax2.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>ax2.legend()</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-3-output-1.png" width="1335" height="566" class="figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
+<p>The key realization is: the optimal solution occurs where the loss function contours (ellipses centered at the unconstrained minimum) first touch the constraint region.</p>
+<p>Let’s plot to see what that looks like (I tried but the diagram linked above is better, so just reference that)</p>
 <p><strong>The key insight:</strong></p>
 <ul>
-<li><p><strong>L₁</strong>: The diamond has corners that lie exactly on the axes. When the loss contours expand outward and touch the constraint region, they’re very likely to hit a corner first — where one or more coefficients are exactly zero.</p></li>
-<li><p><strong>L₂</strong>: The circle has no corners. The loss contours will touch it at some smooth point where all coefficients are small but non-zero.</p></li>
+<li><p><strong><span class="math inline">\(L_1\)</span></strong>: The diamond has corners that lie exactly on the axes. When the loss contours expand outward and touch the constraint region, they’re very likely to hit a corner first — where one or more coefficients are exactly zero.</p></li>
+<li><p><strong><span class="math inline">\(L_2\)</span></strong>: The circle has no corners. The loss contours will touch it at some smooth point where all coefficients are small but non-zero.</p></li>
 </ul>
-</section>
-<section id="why-corners-matter" class="level2">
-<h2 class="anchored" data-anchor-id="why-corners-matter">Why Corners Matter</h2>
-<p>Think of it this way: in 2D, the L₁ diamond has 4 corners (one on each axis). As you increase dimensions, the number of corners grows exponentially. In <span class="math inline">\(n\)</span> dimensions, there are <span class="math inline">\(2n\)</span> corners, each representing a solution where <span class="math inline">\((n-1)\)</span> coefficients are zero.</p>
-<p>The L₂ sphere has no corners in any dimension — it’s perfectly smooth everywhere.</p>
-<div id="515d22ec" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Probability of hitting a corner vs dimension</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>dimensions <span class="op">=</span> np.arange(<span class="dv">2</span>, <span class="dv">21</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Rough approximation: corners vs total surface area</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># For L1: 2n corners in n dimensions</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># For L2: 0 corners</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate relative "sparsity inducing" potential</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>l1_sparsity <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> dimensions  <span class="co"># Number of fully sparse corners</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>total_volume <span class="op">=</span> dimensions <span class="op">**</span> <span class="dv">2</span>  <span class="co"># Rough surface complexity</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>sparsity_probability <span class="op">=</span> l1_sparsity <span class="op">/</span> total_volume</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>plt.plot(dimensions, sparsity_probability, <span class="st">'b-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, marker<span class="op">=</span><span class="st">'o'</span>)</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Number of Dimensions'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Relative Likelihood of Hitting Axis</span><span class="ch">\n</span><span class="st">(Sparse Solution)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Why L₁ Induces Sparsity: More Corners in Higher Dimensions'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>plt.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-4-output-1.png" width="951" height="566" class="figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
 </section>
 <section id="the-gradient-perspective" class="level2">
 <h2 class="anchored" data-anchor-id="the-gradient-perspective">The Gradient Perspective</h2>
@@ -425,131 +335,54 @@ window.Quarto = {
 \frac{\partial}{\partial w_i} w_i^2 = 2w_i
 \]</span></p>
 <p>As <span class="math inline">\(w_i\)</span> approaches zero, the gradient also approaches zero. The “push” weakens, so coefficients get very small but never quite reach zero.</p>
-<div id="eacffda5" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the penalty and gradient behavior</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1000</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>l1_penalty <span class="op">=</span> np.<span class="bu">abs</span>(w)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>l2_penalty <span class="op">=</span> w<span class="op">**</span><span class="dv">2</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Gradients (subgradient for L1 at 0)</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>l1_grad <span class="op">=</span> np.sign(w)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>l1_grad[w <span class="op">==</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span>  <span class="co"># Convention for visualization</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>l2_grad <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> w</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">5</span>))</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Penalty functions</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>ax1.plot(w, l1_penalty, <span class="st">'b-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'L₁: |w|'</span>)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>ax1.plot(w, l2_penalty, <span class="st">'r-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'L₂: w²'</span>)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>ax1.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>ax1.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'w'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Penalty'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Penalty Functions'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>ax1.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>ax1.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>ax1.set_ylim(<span class="op">-</span><span class="fl">0.1</span>, <span class="dv">2</span>)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Gradients</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>ax2.plot(w, l1_grad, <span class="st">'b-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'∂|w|/∂w (constant)'</span>)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>ax2.plot(w, l2_grad, <span class="st">'r-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'∂w²/∂w = 2w (linear)'</span>)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>ax2.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>ax2.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'w'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Gradient'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Gradient Behavior'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>ax2.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>ax2.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>ax2.set_ylim(<span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>)</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b477ed05" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the penalty and gradient behavior</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1000</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>l1_penalty <span class="op">=</span> np.<span class="bu">abs</span>(w)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>l2_penalty <span class="op">=</span> w<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Gradients (subgradient for L1 at 0)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>l1_grad <span class="op">=</span> np.sign(w)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>l1_grad[w <span class="op">==</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span>  <span class="co"># Convention for visualization</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>l2_grad <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> w</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">5</span>))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Penalty functions</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>ax1.plot(w, l1_penalty, <span class="st">'b-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'L₁: |w|'</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>ax1.plot(w, l2_penalty, <span class="st">'r-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'L₂: w²'</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>ax1.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>ax1.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'w'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Penalty'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Penalty Functions'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>ax1.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>ax1.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>ax1.set_ylim(<span class="op">-</span><span class="fl">0.1</span>, <span class="dv">2</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Gradients</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>ax2.plot(w, l1_grad, <span class="st">'b-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'∂|w|/∂w (constant)'</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>ax2.plot(w, l2_grad, <span class="st">'r-'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'∂w²/∂w = 2w (linear)'</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>ax2.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>ax2.axvline(x<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'w'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Gradient'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Gradient Behavior'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>ax2.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>ax2.grid(alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>ax2.set_ylim(<span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-5-output-1.png" width="1335" height="470" class="figure-img"></p>
+<p><img src="index_files/figure-html/cell-3-output-1.png" width="1335" height="470" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Notice: L₁’s gradient stays at ±1 no matter how small the weight is, maintaining constant pressure to reach exactly zero. L₂’s gradient weakens as weights shrink, never quite finishing the job.</p>
-</section>
-<section id="real-example-sparse-vs-dense-solutions" class="level2">
-<h2 class="anchored" data-anchor-id="real-example-sparse-vs-dense-solutions">Real Example: Sparse vs Dense Solutions</h2>
-<p>Let’s see this in action with actual regression:</p>
-<div id="1438b792" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> Lasso, Ridge</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> make_regression</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataset with 100 features, only 10 truly relevant</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>X, y <span class="op">=</span> make_regression(n_samples<span class="op">=</span><span class="dv">200</span>, n_features<span class="op">=</span><span class="dv">100</span>, n_informative<span class="op">=</span><span class="dv">10</span>, </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                       noise<span class="op">=</span><span class="dv">10</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardize</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler()</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>X_scaled <span class="op">=</span> scaler.fit_transform(X)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit L1 (Lasso) and L2 (Ridge)</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>lasso <span class="op">=</span> Lasso(alpha<span class="op">=</span><span class="fl">0.1</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>ridge <span class="op">=</span> Ridge(alpha<span class="op">=</span><span class="fl">0.1</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>lasso.fit(X_scaled, y)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>ridge.fit(X_scaled, y)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Count non-zero coefficients</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>lasso_nonzero <span class="op">=</span> np.<span class="bu">sum</span>(np.<span class="bu">abs</span>(lasso.coef_) <span class="op">&gt;</span> <span class="fl">1e-5</span>)</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>ridge_nonzero <span class="op">=</span> np.<span class="bu">sum</span>(np.<span class="bu">abs</span>(ridge.coef_) <span class="op">&gt;</span> <span class="fl">1e-5</span>)</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"L₁ (Lasso): </span><span class="sc">{</span>lasso_nonzero<span class="sc">}</span><span class="ss"> non-zero coefficients out of 100"</span>)</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"L₂ (Ridge): </span><span class="sc">{</span>ridge_nonzero<span class="sc">}</span><span class="ss"> non-zero coefficients out of 100"</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize coefficient magnitudes</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">5</span>))</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Lasso coefficients</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>ax1.bar(<span class="bu">range</span>(<span class="dv">100</span>), np.<span class="bu">abs</span>(lasso.coef_), color<span class="op">=</span><span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Feature Index'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'|Coefficient|'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="ss">f'L₁ (Lasso): </span><span class="sc">{</span>lasso_nonzero<span class="sc">}</span><span class="ss"> features selected'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>ax1.grid(alpha<span class="op">=</span><span class="fl">0.3</span>, axis<span class="op">=</span><span class="st">'y'</span>)</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Ridge coefficients</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>ax2.bar(<span class="bu">range</span>(<span class="dv">100</span>), np.<span class="bu">abs</span>(ridge.coef_), color<span class="op">=</span><span class="st">'red'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Feature Index'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'|Coefficient|'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="ss">f'L₂ (Ridge): All </span><span class="sc">{</span>ridge_nonzero<span class="sc">}</span><span class="ss"> features retained'</span>, fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>ax2.grid(alpha<span class="op">=</span><span class="fl">0.3</span>, axis<span class="op">=</span><span class="st">'y'</span>)</span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>L₁ (Lasso): 81 non-zero coefficients out of 100
-L₂ (Ridge): 100 non-zero coefficients out of 100</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/cell-6-output-2.png" width="1334" height="470" class="figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Lasso aggressively zeros out irrelevant features, while Ridge shrinks everything but keeps all features in play.</p>
-</section>
-<section id="when-to-use-each" class="level2">
-<h2 class="anchored" data-anchor-id="when-to-use-each">When to Use Each</h2>
-<p><strong>Use L₁ (Lasso) when:</strong> - You have many features and suspect most are irrelevant - You want automatic feature selection - Model interpretability matters (fewer features = easier to explain) - You’re okay with potentially discarding correlated features arbitrarily</p>
-<p><strong>Use L₂ (Ridge) when:</strong> - You have multicollinearity and want to keep all features - Features are all potentially relevant - You don’t need exact zeros in your coefficient vector - You want more stable coefficient estimates</p>
-<p><strong>Use Elastic Net when:</strong> - You want the best of both worlds (combines L₁ and L₂) - You have groups of correlated features you want to select together</p>
-</section>
-<section id="the-bottom-line" class="level2">
-<h2 class="anchored" data-anchor-id="the-bottom-line">The Bottom Line</h2>
-<p>L₁ regularization performs feature selection because of geometry: its constraint region has sharp corners on the coordinate axes. When the optimization finds the best solution within this diamond-shaped region, it naturally tends to land on these corners — where coefficients are exactly zero.</p>
-<p>L₂’s smooth circular constraint has no such corners, so solutions have small but non-zero coefficients across all features.</p>
-<p>It’s a beautiful example of how the shape of a constraint can fundamentally change the nature of solutions you get.</p>
-<hr>
-<p><em>Next week: How Go channels actually work under the hood (spoiler: circular buffers and mutexes).</em></p>
 
 
 </section>

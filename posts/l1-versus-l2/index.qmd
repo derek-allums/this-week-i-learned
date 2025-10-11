@@ -14,9 +14,7 @@ jupyter: python3
 
 ## Introduction
 
-If you've ever trained a regression model, you've probably heard: "Use L₁ for feature selection, L₂ for handling multicollinearity." But *why* does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer lies in geometry.
-
-Today we're diving into the geometric intuition behind why L₁ (Lasso) can eliminate features entirely, while L₂ (Ridge) cannot.
+If you've ever trained a regression model, you've probably heard: "Use L₁ for feature selection, L₂ for handling multicollinearity." But *why* does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer is geometry.
 
 ## The Setup: What Are We Optimizing?
 
@@ -43,15 +41,18 @@ $$
 
 The key question: why does one drive coefficients to exactly zero while the other doesn't?
 
+Note there is good discussion of this all over the interent (https://stats.stackexchange.com/questions/96046/why-l1-norm-can-result-in-variable-selection-but-not-l2)
+and notably in Elements of Statistical Learning as well (which that posts references). 
+
 ## The Geometric Intuition
 
 Let's visualize this in 2D (two coefficients: $w_1$ and $w_2$). We can reframe the optimization as a constrained problem:
 
 **Minimize the loss subject to:**
-- L₁: $|w_1| + |w_2| \leq t$
-- L₂: $w_1^2 + w_2^2 \leq t$
+$$ L_1: |w_1| + |w_2| \leq t $$
+$$ L_2: w_1^2 + w_2^2 \leq t $$
 
-Here's what these constraint regions look like:
+Running some boilerplate code below gives us the diagram that follows
 
 ```{python}
 import numpy as np
@@ -98,95 +99,20 @@ plt.tight_layout()
 plt.show()
 ```
 
-Notice the key difference:
-- **L₁ constraint = Diamond shape** with sharp corners at the axes
-- **L₂ constraint = Circle** with no corners
+Nothing surprising here, just a buch of code to tell us that the formula already does: one is a square, one is a circle. Why is that important?
 
 ## Where Solutions Live
 
-The optimal solution occurs where the loss function contours (ellipses centered at the unconstrained minimum) first touch the constraint region.
+The key realization is: the optimal solution occurs where the loss function contours (ellipses centered at the unconstrained minimum) first touch the constraint region.
 
-```{python}
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
-# Loss function contours (ellipses centered away from origin)
-center_x, center_y = 0.8, 0.6
-
-# Create elliptical contours
-theta = np.linspace(0, 2*np.pi, 100)
-for scale in [0.3, 0.6, 0.9]:
-    ellipse_x = center_x + scale * 0.8 * np.cos(theta)
-    ellipse_y = center_y + scale * 0.6 * np.sin(theta)
-    ax1.plot(ellipse_x, ellipse_y, 'g--', alpha=0.6, linewidth=1)
-    ax2.plot(ellipse_x, ellipse_y, 'g--', alpha=0.6, linewidth=1)
-
-# L1 constraint
-ax1.fill(w1_l1, w2_l1, alpha=0.2, color='blue')
-ax1.plot(w1_l1, w2_l1, 'b-', linewidth=2, label='L₁ constraint')
-ax1.plot(1, 0, 'ro', markersize=12, label='Solution (sparse!)')
-ax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)
-ax1.axvline(x=0, color='k', linestyle='-', alpha=0.3)
-ax1.set_xlabel('w₁', fontsize=12)
-ax1.set_ylabel('w₂', fontsize=12)
-ax1.set_title('L₁: Solution hits corner → w₂ = 0', fontsize=14)
-ax1.set_xlim(-0.2, 1.5)
-ax1.set_ylim(-0.2, 1.2)
-ax1.grid(alpha=0.3)
-ax1.legend()
-
-# L2 constraint
-ax2.fill(w1_l2, w2_l2, alpha=0.2, color='red')
-ax2.plot(w1_l2, w2_l2, 'r-', linewidth=2, label='L₂ constraint')
-ax2.plot(0.65, 0.48, 'ro', markersize=12, label='Solution (both non-zero)')
-ax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)
-ax2.axvline(x=0, color='k', linestyle='-', alpha=0.3)
-ax2.set_xlabel('w₁', fontsize=12)
-ax2.set_ylabel('w₂', fontsize=12)
-ax2.set_title('L₂: Solution on smooth curve → all w ≠ 0', fontsize=14)
-ax2.set_xlim(-0.2, 1.5)
-ax2.set_ylim(-0.2, 1.2)
-ax2.grid(alpha=0.3)
-ax2.legend()
-
-plt.tight_layout()
-plt.show()
-```
+Let's plot to see what that looks like (I tried but the diagram linked above is better, so just reference that)
 
 **The key insight:**
 
-- **L₁**: The diamond has corners that lie exactly on the axes. When the loss contours expand outward and touch the constraint region, they're very likely to hit a corner first — where one or more coefficients are exactly zero.
+- **$L_1$**: The diamond has corners that lie exactly on the axes. When the loss contours expand outward and touch the constraint region, they're very likely to hit a corner first — where one or more coefficients are exactly zero.
 
-- **L₂**: The circle has no corners. The loss contours will touch it at some smooth point where all coefficients are small but non-zero.
+- **$L_2$**: The circle has no corners. The loss contours will touch it at some smooth point where all coefficients are small but non-zero.
 
-## Why Corners Matter
-
-Think of it this way: in 2D, the L₁ diamond has 4 corners (one on each axis). As you increase dimensions, the number of corners grows exponentially. In $n$ dimensions, there are $2n$ corners, each representing a solution where $(n-1)$ coefficients are zero.
-
-The L₂ sphere has no corners in any dimension — it's perfectly smooth everywhere.
-
-```{python}
-# Probability of hitting a corner vs dimension
-dimensions = np.arange(2, 21)
-
-# Rough approximation: corners vs total surface area
-# For L1: 2n corners in n dimensions
-# For L2: 0 corners
-
-# Calculate relative "sparsity inducing" potential
-l1_sparsity = 2 * dimensions  # Number of fully sparse corners
-total_volume = dimensions ** 2  # Rough surface complexity
-
-sparsity_probability = l1_sparsity / total_volume
-
-plt.figure(figsize=(10, 6))
-plt.plot(dimensions, sparsity_probability, 'b-', linewidth=2, marker='o')
-plt.xlabel('Number of Dimensions', fontsize=12)
-plt.ylabel('Relative Likelihood of Hitting Axis\n(Sparse Solution)', fontsize=12)
-plt.title('Why L₁ Induces Sparsity: More Corners in Higher Dimensions', fontsize=14)
-plt.grid(alpha=0.3)
-plt.tight_layout()
-plt.show()
-```
 
 ## The Gradient Perspective
 
@@ -252,87 +178,3 @@ plt.show()
 ```
 
 Notice: L₁'s gradient stays at ±1 no matter how small the weight is, maintaining constant pressure to reach exactly zero. L₂'s gradient weakens as weights shrink, never quite finishing the job.
-
-## Real Example: Sparse vs Dense Solutions
-
-Let's see this in action with actual regression:
-
-```{python}
-from sklearn.linear_model import Lasso, Ridge
-from sklearn.datasets import make_regression
-from sklearn.preprocessing import StandardScaler
-
-# Create a dataset with 100 features, only 10 truly relevant
-X, y = make_regression(n_samples=200, n_features=100, n_informative=10, 
-                       noise=10, random_state=42)
-
-# Standardize
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-# Fit L1 (Lasso) and L2 (Ridge)
-lasso = Lasso(alpha=0.1, random_state=42)
-ridge = Ridge(alpha=0.1, random_state=42)
-
-lasso.fit(X_scaled, y)
-ridge.fit(X_scaled, y)
-
-# Count non-zero coefficients
-lasso_nonzero = np.sum(np.abs(lasso.coef_) > 1e-5)
-ridge_nonzero = np.sum(np.abs(ridge.coef_) > 1e-5)
-
-print(f"L₁ (Lasso): {lasso_nonzero} non-zero coefficients out of 100")
-print(f"L₂ (Ridge): {ridge_nonzero} non-zero coefficients out of 100")
-
-# Visualize coefficient magnitudes
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-
-# Lasso coefficients
-ax1.bar(range(100), np.abs(lasso.coef_), color='blue', alpha=0.7)
-ax1.set_xlabel('Feature Index', fontsize=12)
-ax1.set_ylabel('|Coefficient|', fontsize=12)
-ax1.set_title(f'L₁ (Lasso): {lasso_nonzero} features selected', fontsize=14)
-ax1.grid(alpha=0.3, axis='y')
-
-# Ridge coefficients
-ax2.bar(range(100), np.abs(ridge.coef_), color='red', alpha=0.7)
-ax2.set_xlabel('Feature Index', fontsize=12)
-ax2.set_ylabel('|Coefficient|', fontsize=12)
-ax2.set_title(f'L₂ (Ridge): All {ridge_nonzero} features retained', fontsize=14)
-ax2.grid(alpha=0.3, axis='y')
-
-plt.tight_layout()
-plt.show()
-```
-
-Lasso aggressively zeros out irrelevant features, while Ridge shrinks everything but keeps all features in play.
-
-## When to Use Each
-
-**Use L₁ (Lasso) when:**
-- You have many features and suspect most are irrelevant
-- You want automatic feature selection
-- Model interpretability matters (fewer features = easier to explain)
-- You're okay with potentially discarding correlated features arbitrarily
-
-**Use L₂ (Ridge) when:**
-- You have multicollinearity and want to keep all features
-- Features are all potentially relevant
-- You don't need exact zeros in your coefficient vector
-- You want more stable coefficient estimates
-
-**Use Elastic Net when:**
-- You want the best of both worlds (combines L₁ and L₂)
-- You have groups of correlated features you want to select together
-
-## The Bottom Line
-
-L₁ regularization performs feature selection because of geometry: its constraint region has sharp corners on the coordinate axes. When the optimization finds the best solution within this diamond-shaped region, it naturally tends to land on these corners — where coefficients are exactly zero.
-
-L₂'s smooth circular constraint has no such corners, so solutions have small but non-zero coefficients across all features.
-
-It's a beautiful example of how the shape of a constraint can fundamentally change the nature of solutions you get.
-
----
-
-*Next week: How Go channels actually work under the hood (spoiler: circular buffers and mutexes).*
