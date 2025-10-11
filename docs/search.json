@@ -63,10 +63,80 @@
     "text": "Conclusion\nTemperature is deceptively simple - just one division operation - but it gives us fine-grained control over the exploration/exploitation tradeoff in language generation. Understanding the mathematical foundation helps you know exactly when and how to tune it.\nNext week: How Go channels actually work under the hood (spoiler: there’s a mutex and a circular buffer involved).\n\nFound this useful? Let me know what deep dive you’d like to see next."
   },
   {
+    "objectID": "posts/l1-versus-l2/index.html",
+    "href": "posts/l1-versus-l2/index.html",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "",
+    "text": "If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But why does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer lies in geometry.\nToday we’re diving into the geometric intuition behind why L₁ (Lasso) can eliminate features entirely, while L₂ (Ridge) cannot."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#introduction",
+    "href": "posts/l1-versus-l2/index.html#introduction",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "",
+    "text": "If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But why does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer lies in geometry.\nToday we’re diving into the geometric intuition behind why L₁ (Lasso) can eliminate features entirely, while L₂ (Ridge) cannot."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#the-setup-what-are-we-optimizing",
+    "href": "posts/l1-versus-l2/index.html#the-setup-what-are-we-optimizing",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "The Setup: What Are We Optimizing?",
+    "text": "The Setup: What Are We Optimizing?\nIn regularized regression, we’re trying to minimize a loss function plus a penalty term:\n\\[\n\\text{minimize: } \\mathcal{L}(\\mathbf{w}) + \\lambda \\cdot \\text{Penalty}(\\mathbf{w})\n\\]\nWhere: - \\(\\mathcal{L}(\\mathbf{w})\\) is our loss function (e.g., mean squared error) - \\(\\lambda\\) controls the regularization strength - The penalty differs between L₁ and L₂\nL₁ (Lasso) penalty: \\[\n\\text{Penalty}_{\\text{L1}} = \\sum_{i=1}^{n} |w_i|\n\\]\nL₂ (Ridge) penalty: \\[\n\\text{Penalty}_{\\text{L2}} = \\sum_{i=1}^{n} w_i^2\n\\]\nThe key question: why does one drive coefficients to exactly zero while the other doesn’t?"
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#the-geometric-intuition",
+    "href": "posts/l1-versus-l2/index.html#the-geometric-intuition",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "The Geometric Intuition",
+    "text": "The Geometric Intuition\nLet’s visualize this in 2D (two coefficients: \\(w_1\\) and \\(w_2\\)). We can reframe the optimization as a constrained problem:\nMinimize the loss subject to: - L₁: \\(|w_1| + |w_2| \\leq t\\) - L₂: \\(w_1^2 + w_2^2 \\leq t\\)\nHere’s what these constraint regions look like:\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Create figure with two subplots\nfig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))\n\n# L1 constraint region (diamond)\nt = 1.0\nw1_l1 = np.array([t, 0, -t, 0, t])\nw2_l1 = np.array([0, t, 0, -t, 0])\n\nax1.fill(w1_l1, w2_l1, alpha=0.3, color='blue', label='Feasible region')\nax1.plot(w1_l1, w2_l1, 'b-', linewidth=2)\nax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax1.axvline(x=0, color='k', linestyle='-', alpha=0.3)\nax1.set_xlabel('w₁', fontsize=12)\nax1.set_ylabel('w₂', fontsize=12)\nax1.set_title('L₁ Constraint: |w₁| + |w₂| ≤ 1', fontsize=14)\nax1.set_xlim(-1.5, 1.5)\nax1.set_ylim(-1.5, 1.5)\nax1.grid(alpha=0.3)\nax1.legend()\n\n# L2 constraint region (circle)\ntheta = np.linspace(0, 2*np.pi, 100)\nw1_l2 = t * np.cos(theta)\nw2_l2 = t * np.sin(theta)\n\nax2.fill(w1_l2, w2_l2, alpha=0.3, color='red', label='Feasible region')\nax2.plot(w1_l2, w2_l2, 'r-', linewidth=2)\nax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax2.axvline(x=0, color='k', linestyle='-', alpha=0.3)\nax2.set_xlabel('w₁', fontsize=12)\nax2.set_ylabel('w₂', fontsize=12)\nax2.set_title('L₂ Constraint: w₁² + w₂² ≤ 1', fontsize=14)\nax2.set_xlim(-1.5, 1.5)\nax2.set_ylim(-1.5, 1.5)\nax2.grid(alpha=0.3)\nax2.legend()\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nNotice the key difference: - L₁ constraint = Diamond shape with sharp corners at the axes - L₂ constraint = Circle with no corners"
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#where-solutions-live",
+    "href": "posts/l1-versus-l2/index.html#where-solutions-live",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "Where Solutions Live",
+    "text": "Where Solutions Live\nThe optimal solution occurs where the loss function contours (ellipses centered at the unconstrained minimum) first touch the constraint region.\n\nfig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))\n\n# Loss function contours (ellipses centered away from origin)\ncenter_x, center_y = 0.8, 0.6\n\n# Create elliptical contours\ntheta = np.linspace(0, 2*np.pi, 100)\nfor scale in [0.3, 0.6, 0.9]:\n    ellipse_x = center_x + scale * 0.8 * np.cos(theta)\n    ellipse_y = center_y + scale * 0.6 * np.sin(theta)\n    ax1.plot(ellipse_x, ellipse_y, 'g--', alpha=0.6, linewidth=1)\n    ax2.plot(ellipse_x, ellipse_y, 'g--', alpha=0.6, linewidth=1)\n\n# L1 constraint\nax1.fill(w1_l1, w2_l1, alpha=0.2, color='blue')\nax1.plot(w1_l1, w2_l1, 'b-', linewidth=2, label='L₁ constraint')\nax1.plot(1, 0, 'ro', markersize=12, label='Solution (sparse!)')\nax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax1.axvline(x=0, color='k', linestyle='-', alpha=0.3)\nax1.set_xlabel('w₁', fontsize=12)\nax1.set_ylabel('w₂', fontsize=12)\nax1.set_title('L₁: Solution hits corner → w₂ = 0', fontsize=14)\nax1.set_xlim(-0.2, 1.5)\nax1.set_ylim(-0.2, 1.2)\nax1.grid(alpha=0.3)\nax1.legend()\n\n# L2 constraint\nax2.fill(w1_l2, w2_l2, alpha=0.2, color='red')\nax2.plot(w1_l2, w2_l2, 'r-', linewidth=2, label='L₂ constraint')\nax2.plot(0.65, 0.48, 'ro', markersize=12, label='Solution (both non-zero)')\nax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax2.axvline(x=0, color='k', linestyle='-', alpha=0.3)\nax2.set_xlabel('w₁', fontsize=12)\nax2.set_ylabel('w₂', fontsize=12)\nax2.set_title('L₂: Solution on smooth curve → all w ≠ 0', fontsize=14)\nax2.set_xlim(-0.2, 1.5)\nax2.set_ylim(-0.2, 1.2)\nax2.grid(alpha=0.3)\nax2.legend()\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nThe key insight:\n\nL₁: The diamond has corners that lie exactly on the axes. When the loss contours expand outward and touch the constraint region, they’re very likely to hit a corner first — where one or more coefficients are exactly zero.\nL₂: The circle has no corners. The loss contours will touch it at some smooth point where all coefficients are small but non-zero."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#why-corners-matter",
+    "href": "posts/l1-versus-l2/index.html#why-corners-matter",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "Why Corners Matter",
+    "text": "Why Corners Matter\nThink of it this way: in 2D, the L₁ diamond has 4 corners (one on each axis). As you increase dimensions, the number of corners grows exponentially. In \\(n\\) dimensions, there are \\(2n\\) corners, each representing a solution where \\((n-1)\\) coefficients are zero.\nThe L₂ sphere has no corners in any dimension — it’s perfectly smooth everywhere.\n\n# Probability of hitting a corner vs dimension\ndimensions = np.arange(2, 21)\n\n# Rough approximation: corners vs total surface area\n# For L1: 2n corners in n dimensions\n# For L2: 0 corners\n\n# Calculate relative \"sparsity inducing\" potential\nl1_sparsity = 2 * dimensions  # Number of fully sparse corners\ntotal_volume = dimensions ** 2  # Rough surface complexity\n\nsparsity_probability = l1_sparsity / total_volume\n\nplt.figure(figsize=(10, 6))\nplt.plot(dimensions, sparsity_probability, 'b-', linewidth=2, marker='o')\nplt.xlabel('Number of Dimensions', fontsize=12)\nplt.ylabel('Relative Likelihood of Hitting Axis\\n(Sparse Solution)', fontsize=12)\nplt.title('Why L₁ Induces Sparsity: More Corners in Higher Dimensions', fontsize=14)\nplt.grid(alpha=0.3)\nplt.tight_layout()\nplt.show()"
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#the-gradient-perspective",
+    "href": "posts/l1-versus-l2/index.html#the-gradient-perspective",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "The Gradient Perspective",
+    "text": "The Gradient Perspective\nThere’s another way to understand this: look at the gradients.\nL₁ gradient: \\[\n\\frac{\\partial}{\\partial w_i} |w_i| = \\begin{cases}\n+1 & \\text{if } w_i &gt; 0 \\\\\n-1 & \\text{if } w_i &lt; 0 \\\\\n\\text{undefined} & \\text{if } w_i = 0\n\\end{cases}\n\\]\nThe gradient is constant regardless of how small \\(w_i\\) gets! This creates a “constant push” toward zero.\nL₂ gradient: \\[\n\\frac{\\partial}{\\partial w_i} w_i^2 = 2w_i\n\\]\nAs \\(w_i\\) approaches zero, the gradient also approaches zero. The “push” weakens, so coefficients get very small but never quite reach zero.\n\n# Visualize the penalty and gradient behavior\nw = np.linspace(-2, 2, 1000)\nl1_penalty = np.abs(w)\nl2_penalty = w**2\n\n# Gradients (subgradient for L1 at 0)\nl1_grad = np.sign(w)\nl1_grad[w == 0] = 0  # Convention for visualization\nl2_grad = 2 * w\n\nfig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))\n\n# Penalty functions\nax1.plot(w, l1_penalty, 'b-', linewidth=2, label='L₁: |w|')\nax1.plot(w, l2_penalty, 'r-', linewidth=2, label='L₂: w²')\nax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax1.axvline(x=0, color='k', linestyle='--', alpha=0.3)\nax1.set_xlabel('w', fontsize=12)\nax1.set_ylabel('Penalty', fontsize=12)\nax1.set_title('Penalty Functions', fontsize=14)\nax1.legend(fontsize=11)\nax1.grid(alpha=0.3)\nax1.set_ylim(-0.1, 2)\n\n# Gradients\nax2.plot(w, l1_grad, 'b-', linewidth=2, label='∂|w|/∂w (constant)')\nax2.plot(w, l2_grad, 'r-', linewidth=2, label='∂w²/∂w = 2w (linear)')\nax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax2.axvline(x=0, color='k', linestyle='--', alpha=0.3)\nax2.set_xlabel('w', fontsize=12)\nax2.set_ylabel('Gradient', fontsize=12)\nax2.set_title('Gradient Behavior', fontsize=14)\nax2.legend(fontsize=11)\nax2.grid(alpha=0.3)\nax2.set_ylim(-2.5, 2.5)\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nNotice: L₁’s gradient stays at ±1 no matter how small the weight is, maintaining constant pressure to reach exactly zero. L₂’s gradient weakens as weights shrink, never quite finishing the job."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#real-example-sparse-vs-dense-solutions",
+    "href": "posts/l1-versus-l2/index.html#real-example-sparse-vs-dense-solutions",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "Real Example: Sparse vs Dense Solutions",
+    "text": "Real Example: Sparse vs Dense Solutions\nLet’s see this in action with actual regression:\n\nfrom sklearn.linear_model import Lasso, Ridge\nfrom sklearn.datasets import make_regression\nfrom sklearn.preprocessing import StandardScaler\n\n# Create a dataset with 100 features, only 10 truly relevant\nX, y = make_regression(n_samples=200, n_features=100, n_informative=10, \n                       noise=10, random_state=42)\n\n# Standardize\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\n\n# Fit L1 (Lasso) and L2 (Ridge)\nlasso = Lasso(alpha=0.1, random_state=42)\nridge = Ridge(alpha=0.1, random_state=42)\n\nlasso.fit(X_scaled, y)\nridge.fit(X_scaled, y)\n\n# Count non-zero coefficients\nlasso_nonzero = np.sum(np.abs(lasso.coef_) &gt; 1e-5)\nridge_nonzero = np.sum(np.abs(ridge.coef_) &gt; 1e-5)\n\nprint(f\"L₁ (Lasso): {lasso_nonzero} non-zero coefficients out of 100\")\nprint(f\"L₂ (Ridge): {ridge_nonzero} non-zero coefficients out of 100\")\n\n# Visualize coefficient magnitudes\nfig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))\n\n# Lasso coefficients\nax1.bar(range(100), np.abs(lasso.coef_), color='blue', alpha=0.7)\nax1.set_xlabel('Feature Index', fontsize=12)\nax1.set_ylabel('|Coefficient|', fontsize=12)\nax1.set_title(f'L₁ (Lasso): {lasso_nonzero} features selected', fontsize=14)\nax1.grid(alpha=0.3, axis='y')\n\n# Ridge coefficients\nax2.bar(range(100), np.abs(ridge.coef_), color='red', alpha=0.7)\nax2.set_xlabel('Feature Index', fontsize=12)\nax2.set_ylabel('|Coefficient|', fontsize=12)\nax2.set_title(f'L₂ (Ridge): All {ridge_nonzero} features retained', fontsize=14)\nax2.grid(alpha=0.3, axis='y')\n\nplt.tight_layout()\nplt.show()\n\nL₁ (Lasso): 81 non-zero coefficients out of 100\nL₂ (Ridge): 100 non-zero coefficients out of 100\n\n\n\n\n\n\n\n\n\nLasso aggressively zeros out irrelevant features, while Ridge shrinks everything but keeps all features in play."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#when-to-use-each",
+    "href": "posts/l1-versus-l2/index.html#when-to-use-each",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "When to Use Each",
+    "text": "When to Use Each\nUse L₁ (Lasso) when: - You have many features and suspect most are irrelevant - You want automatic feature selection - Model interpretability matters (fewer features = easier to explain) - You’re okay with potentially discarding correlated features arbitrarily\nUse L₂ (Ridge) when: - You have multicollinearity and want to keep all features - Features are all potentially relevant - You don’t need exact zeros in your coefficient vector - You want more stable coefficient estimates\nUse Elastic Net when: - You want the best of both worlds (combines L₁ and L₂) - You have groups of correlated features you want to select together"
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#the-bottom-line",
+    "href": "posts/l1-versus-l2/index.html#the-bottom-line",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "The Bottom Line",
+    "text": "The Bottom Line\nL₁ regularization performs feature selection because of geometry: its constraint region has sharp corners on the coordinate axes. When the optimization finds the best solution within this diamond-shaped region, it naturally tends to land on these corners — where coefficients are exactly zero.\nL₂’s smooth circular constraint has no such corners, so solutions have small but non-zero coefficients across all features.\nIt’s a beautiful example of how the shape of a constraint can fundamentally change the nature of solutions you get.\n\nNext week: How Go channels actually work under the hood (spoiler: circular buffers and mutexes)."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "This Week I Learned",
     "section": "",
-    "text": "Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nHow Temperature Actually Works in LLMs\n\n\n\ntemperature\n\nllms\n\nmachine-learning\n\nRAG\n\n\n\n\n\n\n\n\n\nOct 11, 2025\n\n\nDerek Allums\n\n\n\n\n\nNo matching items"
+    "text": "Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWhy can L₁ regularization perform feature selection?\n\n\n\nregularization\n\ndata-science\n\nmachine-learning\n\nlasso\n\nl1\n\nridge\n\nl2\n\n\n\n\n\n\n\n\n\nOct 11, 2025\n\n\nDerek Allums\n\n\n\n\n\n\n\n\n\n\n\n\nHow Temperature Actually Works in LLMs\n\n\n\ntemperature\n\nllms\n\nmachine-learning\n\nRAG\n\n\n\n\n\n\n\n\n\nOct 11, 2025\n\n\nDerek Allums\n\n\n\n\n\nNo matching items"
   }
 ]

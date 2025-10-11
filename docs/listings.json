@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/l1-versus-l2/index.html",
       "/posts/temperature-llms/index.html"
     ]
   }

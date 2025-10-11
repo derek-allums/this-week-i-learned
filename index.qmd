@@ -5,6 +5,11 @@ listing:
   sort: "date desc"
   type: default
   categories: true
+format:
+  html:
+    include-in-header:
+      text: |
+        <meta name="google-site-verification" content="u5zFQrhzv271WcfHqnSzbYs8yaCVETWFOWnyLxvfxnY" />
 ---
 
 Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood.
