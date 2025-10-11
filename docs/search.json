@@ -4,7 +4,7 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "About this site"
+    "text": "My name is Derek Allums, I have a PhD in math and have spent most of my career as a data scientist and recently a data engineer. I realized there’s a lot of topics I have some passing familiarity with, e.g., “\\(L_1\\) regularization sometimes acts as feature selection”, but for many of these, how it works under the hood isn’t as clear (in this case, it comes back to geometry - see my second post).\nThe goal of this blog is to provide an outlet for these explorations in the hopes that maybe it could be useful for others - but mainly for me, since I find there’s no better way to understand something than to write about it since any gaps in the understanding become very clear."
   },
   {
     "objectID": "posts/temperature-llms/index.html",
@@ -67,13 +67,6 @@
     "href": "index.html",
     "title": "This Week I Learned",
     "section": "",
-    "text": "Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood."
-  },
-  {
-    "objectID": "index.html#recent-posts",
-    "href": "index.html#recent-posts",
-    "title": "This Week I Learned",
-    "section": "Recent Posts",
-    "text": "Recent Posts\n\nHow Temperature Actually Works in LLMs"
+    "text": "Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nHow Temperature Actually Works in LLMs\n\n\n\ntemperature\n\nllms\n\nmachine-learning\n\nRAG\n\n\n\n\n\n\n\n\n\nOct 11, 2025\n\n\nDerek Allums\n\n\n\n\n\nNo matching items"
   }
 ]

@@ -1,0 +1,4 @@
+html:
+  include-in-header:
+    text: |
+      <meta name="google-site-verification" content="u5zFQrhzv271WcfHqnSzbYs8yaCVETWFOWnyLxvfxnY" />

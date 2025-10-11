@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>About – This week I learned</title>
+<title>About – This Week I Learned</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -69,8 +69,36 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<link rel="stylesheet" href="styles.css">
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -83,7 +111,7 @@ ul.task-list li input[type="checkbox"] {
     <a href="./index.html" class="navbar-brand navbar-brand-logo">
     </a>
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">This week I learned</span>
+    <span class="navbar-title">This Week I Learned</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -136,7 +164,8 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>About this site</p>
+<p>My name is Derek Allums, I have a PhD in math and have spent most of my career as a data scientist and recently a data engineer. I realized there’s a lot of topics I have some passing familiarity with, e.g., “<span class="math inline">\(L_1\)</span> regularization sometimes acts as feature selection”, but for many of these, how it works under the hood isn’t as clear (in this case, it comes back to geometry - see my second post).</p>
+<p>The goal of this blog is to provide an outlet for these explorations in the hopes that maybe it could be useful for others - but mainly for me, since I find there’s no better way to understand something than to write about it since any gaps in the understanding become very clear.</p>
 
 
 
