@@ -12,4 +12,4 @@ format:
         <meta name="google-site-verification" content="u5zFQrhzv271WcfHqnSzbYs8yaCVETWFOWnyLxvfxnY" />
 ---
 
-Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood.
+Welcome to my technical deep dives! Every week (ish (I hope)) I explore how something interesting actually works under the hood.
