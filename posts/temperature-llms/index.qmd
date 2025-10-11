@@ -22,7 +22,7 @@ But what's actually happening under the hood?
 
 At its core, a language model outputs a probability distribution over its vocabulary for the next token. 
 
-Here's a toy exmaple on a simple vocabulary of 4 words:
+Here's a toy example on a simple vocabulary of 4 words:
 
 ```{python}
 import numpy as np
@@ -173,10 +173,10 @@ for temp in [0.5, 1.0, 2.0]:
         print(f"  {word}: {prob:.3f}")
 ```
 
-## Edge Cases
+## Heuristics
 
 **Temperature = 0:** Not technically possible (division by zero), but `temperature → 0` approximates **greedy decoding** (always pick the highest probability token). 
-Thinking back to teh definition and exmaples above, you basically exaggerate the differences in probabilities between the next tokens, so that
+Thinking back to the definition and examples above, you basically exaggerate the differences in probabilities between the next tokens, so that
 eventually it's deterministic or very close to it.
 
 **Temperature < 1:** "Sharpens" the distribution, making high-probability tokens even more likely.
