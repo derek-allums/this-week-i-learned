@@ -1,0 +1,194 @@
+---
+title: "How Temperature Actually Works in LLMs"
+author: "Your Name"
+date: "2025-10-11"
+format:
+  html:
+    code-fold: false
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+jupyter: python3
+---
+
+## Introduction
+
+Every time you use an LLM, there's a parameter called "temperature" hiding in the background, fundamentally shaping how creative or conservative the responses are. But what's actually happening under the hood?
+
+Today we're diving deep into the mathematics and implementation of temperature in language models.
+
+## The Core Problem: Probability Distributions
+
+At its heart, a language model outputs a probability distribution over its vocabulary for the next token. Let's say we have a simple vocabulary of 4 words:
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Raw logits from the model
+logits = np.array([2.0, 1.0, 0.5, 0.1])
+vocab = ['the', 'a', 'an', 'some']
+
+# Convert to probabilities with softmax
+def softmax(x):
+    exp_x = np.exp(x - np.max(x))  # Subtract max for numerical stability
+    return exp_x / exp_x.sum()
+
+probs = softmax(logits)
+
+# Visualize
+plt.figure(figsize=(10, 5))
+plt.bar(vocab, probs, color='steelblue')
+plt.ylabel('Probability')
+plt.title('Token Probabilities (Temperature = 1.0)')
+plt.ylim(0, 1)
+for i, (word, prob) in enumerate(zip(vocab, probs)):
+    plt.text(i, prob + 0.02, f'{prob:.3f}', ha='center')
+plt.show()
+```
+
+The model might assign probabilities like: `the: 0.52, a: 0.29, an: 0.13, some: 0.06`
+
+## The Mathematics of Temperature
+
+Temperature $T$ is applied *before* the softmax function. The modified softmax becomes:
+
+$$
+P(x_i) = \frac{e^{z_i/T}}{\sum_{j=1}^{n} e^{z_j/T}}
+$$
+
+Where:
+- $z_i$ are the raw logits from the model
+- $T$ is the temperature parameter
+- $P(x_i)$ is the probability of token $i$
+
+### What Different Temperatures Do
+
+```{python}
+def softmax_with_temperature(logits, temperature):
+    scaled_logits = logits / temperature
+    return softmax(scaled_logits)
+
+temperatures = [0.1, 0.5, 1.0, 2.0, 5.0]
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 8))
+axes = axes.flatten()
+
+for idx, temp in enumerate(temperatures):
+    probs_temp = softmax_with_temperature(logits, temp)
+    
+    axes[idx].bar(vocab, probs_temp, color='steelblue')
+    axes[idx].set_ylabel('Probability')
+    axes[idx].set_title(f'Temperature = {temp}')
+    axes[idx].set_ylim(0, 1)
+    
+    for i, (word, prob) in enumerate(zip(vocab, probs_temp)):
+        axes[idx].text(i, prob + 0.02, f'{prob:.3f}', ha='center', fontsize=9)
+
+# Remove extra subplot
+fig.delaxes(axes[5])
+plt.tight_layout()
+plt.show()
+```
+
+### The Entropy Perspective
+
+We can measure the "randomness" of a distribution using entropy:
+
+$$
+H(P) = -\sum_{i=1}^{n} P(x_i) \log P(x_i)
+$$
+
+Higher temperature → higher entropy → more random outputs
+
+```{python}
+def entropy(probs):
+    return -np.sum(probs * np.log(probs + 1e-10))
+
+temp_range = np.linspace(0.1, 5.0, 100)
+entropies = [entropy(softmax_with_temperature(logits, t)) for t in temp_range]
+
+plt.figure(figsize=(10, 5))
+plt.plot(temp_range, entropies, linewidth=2, color='darkred')
+plt.xlabel('Temperature')
+plt.ylabel('Entropy (bits)')
+plt.title('How Temperature Affects Distribution Entropy')
+plt.grid(alpha=0.3)
+plt.show()
+```
+
+## Real Implementation
+
+Here's how this looks in actual PyTorch code:
+
+```python
+import torch
+import torch.nn.functional as F
+
+def sample_with_temperature(logits, temperature=1.0):
+    """
+    Sample from a language model with temperature scaling.
+    
+    Args:
+        logits: Raw output scores from model (shape: [vocab_size])
+        temperature: Sampling temperature (default: 1.0)
+    
+    Returns:
+        Sampled token index
+    """
+    # Scale logits by temperature
+    scaled_logits = logits / temperature
+    
+    # Convert to probabilities
+    probs = F.softmax(scaled_logits, dim=-1)
+    
+    # Sample from the distribution
+    token_id = torch.multinomial(probs, num_samples=1)
+    
+    return token_id
+
+# Example usage
+logits = torch.tensor([2.0, 1.0, 0.5, 0.1])
+
+# Sample 1000 times at different temperatures
+for temp in [0.5, 1.0, 2.0]:
+    samples = [sample_with_temperature(logits, temp).item() 
+               for _ in range(1000)]
+    
+    # Count occurrences
+    counts = np.bincount(samples, minlength=4)
+    empirical_probs = counts / 1000
+    
+    print(f"\nTemperature {temp}:")
+    for word, prob in zip(vocab, empirical_probs):
+        print(f"  {word}: {prob:.3f}")
+```
+
+## Edge Cases
+
+**Temperature = 0:** Not technically possible (division by zero), but `temperature → 0` approximates **greedy decoding** (always pick the highest probability token).
+
+**Temperature < 1:** "Sharpens" the distribution, making high-probability tokens even more likely.
+
+**Temperature = 1:** No modification, the original model distribution.
+
+**Temperature > 1:** "Flattens" the distribution, giving lower-probability tokens more chance.
+
+## Practical Guidelines
+
+From my experiments with various models:
+
+- **T = 0.1-0.3:** Factual tasks, code generation, when you need consistency
+- **T = 0.7-0.9:** General conversation, slight creativity
+- **T = 1.0-1.5:** Creative writing, brainstorming
+- **T = 2.0+:** Experimental/chaotic, rarely useful
+
+## Conclusion
+
+Temperature is deceptively simple - just one division operation - but it gives us fine-grained control over the exploration/exploitation tradeoff in language generation. Understanding the mathematical foundation helps you know exactly when and how to tune it.
+
+Next week: How Go channels actually work under the hood (spoiler: there's a mutex and a circular buffer involved).
+
+---
+
+*Found this useful? Let me know what deep dive you'd like to see next.*
