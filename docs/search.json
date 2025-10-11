@@ -65,8 +65,15 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "this-week-i-learned",
+    "title": "This Week I Learned",
     "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+    "text": "Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood."
+  },
+  {
+    "objectID": "index.html#recent-posts",
+    "href": "index.html#recent-posts",
+    "title": "This Week I Learned",
+    "section": "Recent Posts",
+    "text": "Recent Posts\n\nHow Temperature Actually Works in LLMs"
   }
 ]

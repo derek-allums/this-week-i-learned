@@ -1,7 +1,9 @@
 ---
-title: "this-week-i-learned"
+title: "This Week I Learned"
 ---
 
-This is a Quarto website.
+Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+## Recent Posts
+
+- [How Temperature Actually Works in LLMs](posts/temperature-llms/index.html)
