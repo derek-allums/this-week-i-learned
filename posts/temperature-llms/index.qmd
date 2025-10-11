@@ -1,6 +1,7 @@
 ---
 title: "How Temperature Actually Works in LLMs"
-author: "Your Name"
+author: "Derek Allums"
+categories: [temperature, llms, machine-learning, RAG]
 date: "2025-10-11"
 format:
   html:

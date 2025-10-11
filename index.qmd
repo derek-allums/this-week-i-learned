@@ -1,9 +1,10 @@
 ---
 title: "This Week I Learned"
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+  categories: true
 ---
 
 Welcome to my technical deep dives! Every week I explore how something interesting actually works under the hood.
-
-## Recent Posts
-
-- [How Temperature Actually Works in LLMs](posts/temperature-llms/index.html)
