@@ -3,7 +3,7 @@ title: "About"
 ---
 
 My name is Derek Allums, I have a PhD in math and have spent most of my career as a data scientist and recently a data engineer. 
-I realized there's a lot of topics I have some passing familiarity with, e.g., "$L_1$ regularization sometimes acts as feature selection", 
+I realized there are a lot of topics I have some passing familiarity with, e.g., "$L_1$ regularization sometimes acts as feature selection", 
 but for many of these, how it works under the hood isn't as clear (in this case, it comes back to geometry - see my second post).
 
 The goal of this blog is to provide an outlet for these explorations in the hopes that maybe it could be useful for others - but mainly for me,
