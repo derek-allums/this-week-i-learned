@@ -8,3 +8,5 @@ but for many of these, how it works under the hood isn't as clear (in this case,
 
 The goal of this blog is to provide an outlet for these explorations in the hopes that maybe it could be useful for others - but mainly for me,
 since I find there's no better way to understand something than to write about it since any gaps in the understanding become very clear. 
+
+Note: none of this is original research, it is just summary to help with my own understanding. I also make frequent use of LLMs to generate exmaple code, figures, etc. 
