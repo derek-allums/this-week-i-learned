@@ -1,0 +1,446 @@
+---
+title: "Searching in vector DBs: BM25 and semantic search"
+author: "Derek Allums"
+categories: [search, information-retrieval, vector-databases, nlp, embeddings]
+date: "2025-10-27"
+format:
+  html:
+    code-fold: false
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+jupyter: python3
+---
+
+## Introduction
+
+Vector databases are everywhere now - storing embeddings and doing semantic search with cosine similarity. But here's something interesting: most production vector databases also implement BM25, a 40-year-old keyword search algorithm. Why?
+
+Because pure semantic search has blind spots that BM25 covers beautifully. Today we're diving into how BM25 actually works, why it complements embeddings, and how hybrid search combines both.
+
+## The Problem with Pure Semantic Search
+
+Imagine you're searching for documents about "GPT-4" in a database. With pure embedding search:
+
+```{python}
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Simplified: query and document embeddings
+query_embedding = np.random.randn(1, 768)  # "GPT-4"
+doc1_embedding = np.random.randn(1, 768)   # Contains "GPT-4"
+doc2_embedding = np.random.randn(1, 768)   # About "large language models"
+
+# Semantic similarity
+sim1 = cosine_similarity(query_embedding, doc1_embedding)[0][0]
+sim2 = cosine_similarity(query_embedding, doc2_embedding)[0][0]
+
+print(f"Document mentioning 'GPT-4': {sim1:.3f}")
+print(f"Document about LLMs generally: {sim2:.3f}")
+```
+
+The issue? Embeddings might rate a document about "large language models in general" as more semantically similar than a document that explicitly mentions "GPT-4", even though you wanted exact matches.
+
+**Semantic search fails at:**
+- Exact keyword matches (product codes, names, technical terms)
+- Rare or new terms the embedding model wasn't trained on
+- Cases where word frequency matters ("mentioned 10 times" vs "mentioned once")
+
+This is where BM25 shines.
+
+## What is BM25?
+
+BM25 (Best Matching 25) is a ranking function from the 1970s-90s that scores documents based on term frequency and document length. It's probabilistic and has solid theoretical foundations.
+
+The formula looks intimidating but breaks down nicely:
+
+$$
+\text{BM25}(D, Q) = \sum_{i=1}^{n} \text{IDF}(q_i) \cdot \frac{f(q_i, D) \cdot (k_1 + 1)}{f(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
+$$
+
+Where:
+- $Q$ = query terms $\{q_1, q_2, ..., q_n\}$
+- $D$ = document
+- $f(q_i, D)$ = frequency of term $q_i$ in document $D$
+- $|D|$ = length of document $D$
+- $\text{avgdl}$ = average document length in the collection
+- $k_1$ and $b$ = tuning parameters (typically $k_1=1.5$, $b=0.75$)
+
+Let's break down each component.
+
+## Component 1: Term Frequency (TF)
+
+The first part captures "how often does this query term appear?"
+
+$$
+\text{TF}(q_i, D) = \frac{f(q_i, D) \cdot (k_1 + 1)}{f(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
+$$
+
+Notice this is **saturating** - if a term appears 100 times, it doesn't get 100x the score. It has diminishing returns.
+
+```{python}
+import matplotlib.pyplot as plt
+
+def bm25_tf(term_freq, doc_length, avg_doc_length, k1=1.5, b=0.75):
+    """Calculate BM25 term frequency component"""
+    numerator = term_freq * (k1 + 1)
+    denominator = term_freq + k1 * (1 - b + b * (doc_length / avg_doc_length))
+    return numerator / denominator
+
+# Visualize how TF score saturates
+term_frequencies = np.arange(1, 50)
+avg_length = 1000
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+# Effect of term frequency
+for doc_len in [500, 1000, 2000]:
+    scores = [bm25_tf(tf, doc_len, avg_length) for tf in term_frequencies]
+    ax1.plot(term_frequencies, scores, label=f'Doc length: {doc_len}', linewidth=2)
+
+ax1.set_xlabel('Term Frequency', fontsize=12)
+ax1.set_ylabel('BM25 TF Score', fontsize=12)
+ax1.set_title('BM25 Term Frequency: Saturating Behavior', fontsize=14)
+ax1.legend()
+ax1.grid(alpha=0.3)
+
+# Compare to linear TF
+linear_tf = term_frequencies / max(term_frequencies)
+bm25_tf_scores = [bm25_tf(tf, 1000, 1000) for tf in term_frequencies]
+
+ax2.plot(term_frequencies, linear_tf, 'r--', label='Linear TF', linewidth=2)
+ax2.plot(term_frequencies, bm25_tf_scores, 'b-', label='BM25 TF', linewidth=2)
+ax2.set_xlabel('Term Frequency', fontsize=12)
+ax2.set_ylabel('Normalized Score', fontsize=12)
+ax2.set_title('BM25 vs Linear Term Frequency', fontsize=14)
+ax2.legend()
+ax2.grid(alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+Key insight: After ~10 occurrences, additional mentions barely increase the score. This prevents keyword stuffing from gaming the system.
+
+## Component 2: Inverse Document Frequency (IDF)
+
+IDF measures "how rare is this term across all documents?"
+
+$$
+\text{IDF}(q_i) = \ln\left(\frac{N - n(q_i) + 0.5}{n(q_i) + 0.5} + 1\right)
+$$
+
+Where:
+- $N$ = total number of documents
+- $n(q_i)$ = number of documents containing term $q_i$
+
+Common words like "the" or "is" appear in most documents → low IDF → low contribution to score. Rare terms like "BM25" or "GPT-4" → high IDF → high contribution.
+
+```{python}
+def bm25_idf(num_docs_with_term, total_docs):
+    """Calculate BM25 IDF score"""
+    numerator = total_docs - num_docs_with_term + 0.5
+    denominator = num_docs_with_term + 0.5
+    return np.log((numerator / denominator) + 1)
+
+# Visualize IDF scores
+total_docs = 10000
+doc_frequencies = np.logspace(0, 4, 100, dtype=int)  # 1 to 10000
+doc_frequencies = np.clip(doc_frequencies, 1, total_docs)
+
+idf_scores = [bm25_idf(df, total_docs) for df in doc_frequencies]
+
+plt.figure(figsize=(10, 6))
+plt.semilogx(doc_frequencies, idf_scores, 'b-', linewidth=2)
+plt.xlabel('Number of Documents Containing Term', fontsize=12)
+plt.ylabel('IDF Score', fontsize=12)
+plt.title('BM25 IDF: Rare Terms Get Higher Scores', fontsize=14)
+plt.grid(alpha=0.3, which='both')
+
+# Mark some example points
+examples = [
+    (1, "Unique term"),
+    (100, "Rare term"),
+    (1000, "Common term"),
+    (9000, "Stop word")
+]
+
+for df, label in examples:
+    idf = bm25_idf(df, total_docs)
+    plt.plot(df, idf, 'ro', markersize=10)
+    plt.annotate(label, xy=(df, idf), xytext=(df*1.5, idf+0.3),
+                fontsize=10, arrowprops=dict(arrowstyle='->', color='red'))
+
+plt.tight_layout()
+plt.show()
+```
+
+## Component 3: Document Length Normalization
+
+The parameter $b$ (typically 0.75) controls how much we penalize long documents:
+
+$$
+\text{Norm} = 1 - b + b \cdot \frac{|D|}{\text{avgdl}}
+$$
+
+- $b = 0$: No length normalization (long docs favored)
+- $b = 1$: Full length normalization (heavily penalize long docs)
+- $b = 0.75$: Balanced (standard)
+
+Why normalize? Long documents naturally contain more term occurrences. Without normalization, they'd dominate results unfairly.
+
+```{python}
+# Effect of b parameter on document length normalization
+doc_lengths = np.linspace(100, 5000, 100)
+avg_doc_length = 1000
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for b in [0.0, 0.5, 0.75, 1.0]:
+    norm_factors = 1 - b + b * (doc_lengths / avg_doc_length)
+    ax.plot(doc_lengths, norm_factors, label=f'b = {b}', linewidth=2)
+
+ax.axvline(avg_doc_length, color='gray', linestyle='--', alpha=0.5, label='Avg doc length')
+ax.set_xlabel('Document Length', fontsize=12)
+ax.set_ylabel('Normalization Factor', fontsize=12)
+ax.set_title('Effect of Parameter b on Length Normalization', fontsize=14)
+ax.legend()
+ax.grid(alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+## Complete Implementation
+
+Let's implement BM25 from scratch:
+
+```python
+import numpy as np
+from collections import Counter
+import re
+
+class BM25:
+    def __init__(self, k1=1.5, b=0.75):
+        self.k1 = k1
+        self.b = b
+        self.doc_freqs = []
+        self.idf = {}
+        self.doc_len = []
+        self.avgdl = 0
+        self.N = 0
+        
+    def tokenize(self, text):
+        """Simple tokenization"""
+        return re.findall(r'\w+', text.lower())
+    
+    def fit(self, documents):
+        """Build IDF scores from document collection"""
+        self.N = len(documents)
+        
+        # Calculate document frequencies and lengths
+        df = Counter()
+        for doc in documents:
+            tokens = self.tokenize(doc)
+            self.doc_len.append(len(tokens))
+            unique_tokens = set(tokens)
+            df.update(unique_tokens)
+        
+        self.avgdl = sum(self.doc_len) / self.N
+        
+        # Calculate IDF for each term
+        for term, freq in df.items():
+            self.idf[term] = np.log((self.N - freq + 0.5) / (freq + 0.5) + 1)
+    
+    def score(self, query, document_idx, document):
+        """Calculate BM25 score for a query-document pair"""
+        query_terms = self.tokenize(query)
+        doc_terms = self.tokenize(document)
+        doc_term_freqs = Counter(doc_terms)
+        
+        score = 0.0
+        doc_len = self.doc_len[document_idx]
+        
+        for term in query_terms:
+            if term not in self.idf:
+                continue
+                
+            idf = self.idf[term]
+            tf = doc_term_freqs.get(term, 0)
+            
+            # BM25 formula
+            numerator = tf * (self.k1 + 1)
+            denominator = tf + self.k1 * (1 - self.b + self.b * (doc_len / self.avgdl))
+            
+            score += idf * (numerator / denominator)
+        
+        return score
+
+# Example usage
+documents = [
+    "BM25 is a ranking function used in information retrieval",
+    "Vector databases store embeddings for semantic search",
+    "BM25 and vector search complement each other in hybrid systems",
+    "The quick brown fox jumps over the lazy dog",
+]
+
+bm25 = BM25()
+bm25.fit(documents)
+
+query = "BM25 vector search"
+scores = [bm25.score(query, idx, doc) for idx, doc in enumerate(documents)]
+
+print("Query:", query)
+print("\nDocument scores:")
+for idx, (doc, score) in enumerate(sorted(zip(documents, scores), 
+                                          key=lambda x: x[1], reverse=True)):
+    print(f"{score:.3f}: {doc[:60]}...")
+```
+
+## Hybrid Search: Best of Both Worlds
+
+Modern vector databases combine BM25 and embedding similarity:
+
+$$
+\text{Hybrid Score} = \alpha \cdot \text{BM25}(Q, D) + (1-\alpha) \cdot \text{Cosine}(\mathbf{q}, \mathbf{d})
+$$
+
+Where $\alpha$ controls the keyword/semantic balance (typically 0.5).
+
+```{python}
+# Simulate hybrid search
+np.random.seed(42)
+
+def normalize(scores):
+    """Min-max normalization to [0,1]"""
+    min_s, max_s = min(scores), max(scores)
+    if max_s == min_s:
+        return [0.5] * len(scores)
+    return [(s - min_s) / (max_s - min_s) for s in scores]
+
+# Simulate scores for 5 documents
+bm25_scores = [8.5, 2.1, 6.3, 0.5, 7.8]  # Keyword relevance
+semantic_scores = [0.72, 0.91, 0.68, 0.45, 0.55]  # Embedding similarity
+
+# Normalize both to [0, 1]
+bm25_norm = normalize(bm25_scores)
+semantic_norm = normalize(semantic_scores)
+
+# Calculate hybrid scores for different alpha values
+alphas = np.linspace(0, 1, 11)
+doc_names = [f"Doc {i+1}" for i in range(5)]
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+# Show individual scores
+x = np.arange(len(doc_names))
+width = 0.35
+
+ax1.bar(x - width/2, bm25_norm, width, label='BM25 (normalized)', alpha=0.8)
+ax1.bar(x + width/2, semantic_norm, width, label='Semantic (normalized)', alpha=0.8)
+ax1.set_xlabel('Documents', fontsize=12)
+ax1.set_ylabel('Normalized Score', fontsize=12)
+ax1.set_title('Individual Ranking Signals', fontsize=14)
+ax1.set_xticks(x)
+ax1.set_xticklabels(doc_names)
+ax1.legend()
+ax1.grid(alpha=0.3, axis='y')
+
+# Show hybrid scores across different alpha values
+for i, doc_name in enumerate(doc_names):
+    hybrid_scores = [alpha * bm25_norm[i] + (1-alpha) * semantic_norm[i] 
+                     for alpha in alphas]
+    ax2.plot(alphas, hybrid_scores, marker='o', label=doc_name, linewidth=2)
+
+ax2.set_xlabel('α (weight on BM25)', fontsize=12)
+ax2.set_ylabel('Hybrid Score', fontsize=12)
+ax2.set_title('Hybrid Scores: Tuning Keyword vs Semantic Balance', fontsize=14)
+ax2.legend()
+ax2.grid(alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+Notice how different documents rank differently depending on $\alpha$:
+- $\alpha = 1$: Pure keyword search (BM25 only)
+- $\alpha = 0$: Pure semantic search (embeddings only)  
+- $\alpha = 0.5$: Balanced hybrid
+
+## When to Use Each Strategy
+
+**Pure BM25 (α ≈ 1.0):**
+- Product catalogs with exact SKUs/model numbers
+- Legal documents with specific terminology
+- Code search where exact function names matter
+- Medical records with precise diagnoses
+
+**Pure Semantic (α ≈ 0.0):**
+- Conversational queries with paraphrasing
+- Multi-language search
+- Concept-based discovery
+- When you want "similar ideas" not "same words"
+
+**Hybrid (α ≈ 0.5):**
+- General-purpose search
+- E-commerce (combine exact matches + similar products)
+- Customer support (find relevant tickets even with different wording)
+- Most real-world applications
+
+## Real-World Performance
+
+Here's what hybrid search looks like in practice:
+
+| Query Type | BM25 Only | Semantic Only | Hybrid |
+|------------|-----------|---------------|--------|
+| Exact match ("GPT-4") | ✓✓✓ | ✗ | ✓✓✓ |
+| Paraphrase ("AI chatbot") | ✗ | ✓✓✓ | ✓✓✓ |
+| Rare terms | ✓✓✓ | ✗ | ✓✓✓ |
+| Typos | ✗ | ✓✓ | ✓✓ |
+| Multi-concept | ✓ | ✓✓✓ | ✓✓✓ |
+
+Studies show hybrid search typically improves retrieval metrics by 15-30% over either method alone.
+
+## Implementation in Popular Vector DBs
+
+Most vector databases now support hybrid search out of the box:
+
+**Weaviate:**
+```python
+results = client.query.get("Document", ["text"]).with_hybrid(
+    query="BM25 search",
+    alpha=0.5  # 0=pure vector, 1=pure BM25
+).do()
+```
+
+**Pinecone:**
+```python
+results = index.query(
+    vector=embedding,
+    sparse_vector=sparse_vector,  # BM25-style sparse vector
+    top_k=10
+)
+```
+
+**Elasticsearch:**
+```json
+{
+  "query": {
+    "hybrid": {
+      "queries": [
+        {"match": {"text": "BM25 search"}},
+        {"knn": {"field": "embedding", "query_vector": [...]}}
+      ]
+    }
+  }
+}
+```
+
+## The Bottom Line
+
+BM25 isn't obsolete - it's complementary. While embeddings capture semantic meaning beautifully, BM25 excels at exact keyword matching and term frequency analysis. Real production systems use both.
+
+The 40-year-old algorithm survives because it solves problems that pure neural approaches don't: exact matches, rare terms, and interpretable scores. Combined with modern embeddings, you get the best of both worlds.
+
+Next time you're building search, don't choose between BM25 and vectors. Use both.
+
+---
