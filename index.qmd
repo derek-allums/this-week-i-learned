@@ -14,4 +14,4 @@ format:
 
 Welcome to my technical deep dives! Every week (ish (I hope)) I explore how something interesting actually works under the hood.
 
-Note: none of this is original research, it is just summary to help with my own understanding. 
+Note: none of this is original research, it is just summary to help with my own understanding. I also make frequent use of LLMs to generate exmaple code, figures, etc. 
