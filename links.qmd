@@ -1,0 +1,27 @@
+---
+title: "Links"
+---
+
+[TODO: fill in with real links, just testing for now]
+
+## Papers
+
+- [My Paper Title](https://arxiv.org/...) - Brief description of what it's about
+- [Another Paper](https://link-to-paper.com) - What this one covers
+
+## Profiles
+
+- [GitHub](https://github.com/derek-allums)
+- [LinkedIn](https://linkedin.com/in/your-profile)
+- [Twitter/X](https://twitter.com/yourhandle)
+- [Google Scholar](https://scholar.google.com/your-profile)
+
+## Projects
+
+- [Cool Project Name](https://github.com/derek-allums/project) - What it does
+- [Another Project](https://link.com) - Brief description
+
+## Other
+
+- [Personal website](https://yoursite.com)
+- [Email](mailto:your@email.com)

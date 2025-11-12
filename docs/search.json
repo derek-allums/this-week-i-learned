@@ -1,101 +1,45 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "links.html",
+    "href": "links.html",
+    "title": "Links",
     "section": "",
-    "text": "My name is Derek Allums, I have a PhD in math and have spent most of my career as a data scientist and recently a data engineer. I realized there are a lot of topics I have some passing familiarity with, e.g., “\\(L_1\\) regularization sometimes acts as feature selection”, but for many of these, how it works under the hood isn’t as clear (in this case, it comes back to geometry - see my second post).\nThe goal of this blog is to provide an outlet for these explorations in the hopes that maybe it could be useful for others - but mainly for me, since I find there’s no better way to understand something than to write about it since any gaps in the understanding become very clear.\nNote: none of this is original research, it is just summary to help with my own understanding. I also make frequent use of LLMs to generate exmaple code, figures, etc."
+    "text": "[TODO: fill in with real links, just testing for now]"
   },
   {
-    "objectID": "posts/temperature-llms/index.html",
-    "href": "posts/temperature-llms/index.html",
-    "title": "How Temperature Actually Works in LLMs",
+    "objectID": "links.html#papers",
+    "href": "links.html#papers",
+    "title": "Links",
+    "section": "Papers",
+    "text": "Papers\n\nMy Paper Title - Brief description of what it’s about\nAnother Paper - What this one covers"
+  },
+  {
+    "objectID": "links.html#profiles",
+    "href": "links.html#profiles",
+    "title": "Links",
+    "section": "Profiles",
+    "text": "Profiles\n\nGitHub\nLinkedIn\nTwitter/X\nGoogle Scholar"
+  },
+  {
+    "objectID": "links.html#projects",
+    "href": "links.html#projects",
+    "title": "Links",
+    "section": "Projects",
+    "text": "Projects\n\nCool Project Name - What it does\nAnother Project - Brief description"
+  },
+  {
+    "objectID": "links.html#other",
+    "href": "links.html#other",
+    "title": "Links",
+    "section": "Other",
+    "text": "Other\n\nPersonal website\nEmail"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "This Week I Learned",
     "section": "",
-    "text": "Every time you use an LLM, there’s a parameter called “temperature” typically set at \\(0.7\\) or even hidden from the user, fundamentally shaping how creative or conservative the responses are.\nBut what’s actually happening under the hood?"
-  },
-  {
-    "objectID": "posts/temperature-llms/index.html#introduction",
-    "href": "posts/temperature-llms/index.html#introduction",
-    "title": "How Temperature Actually Works in LLMs",
-    "section": "",
-    "text": "Every time you use an LLM, there’s a parameter called “temperature” typically set at \\(0.7\\) or even hidden from the user, fundamentally shaping how creative or conservative the responses are.\nBut what’s actually happening under the hood?"
-  },
-  {
-    "objectID": "posts/temperature-llms/index.html#the-core-problem-probability-distributions",
-    "href": "posts/temperature-llms/index.html#the-core-problem-probability-distributions",
-    "title": "How Temperature Actually Works in LLMs",
-    "section": "The Core Problem: Probability Distributions",
-    "text": "The Core Problem: Probability Distributions\nAt its core, a language model outputs a probability distribution over its vocabulary for the next token.\nHere’s a toy example on a simple vocabulary of 4 words:\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Raw logits from the model\nlogits = np.array([2.0, 1.0, 0.5, 0.1])\nvocab = ['the', 'a', 'an', 'some']\n\n# Convert to probabilities with softmax\ndef softmax(x):\n    exp_x = np.exp(x - np.max(x))  # Subtract max for numerical stability\n    return exp_x / exp_x.sum()\n\nprobs = softmax(logits)\n\n# Visualize\nplt.figure(figsize=(10, 5))\nplt.bar(vocab, probs, color='steelblue')\nplt.ylabel('Probability')\nplt.title('Token Probabilities (Temperature = 1.0)')\nplt.ylim(0, 1)\nfor i, (word, prob) in enumerate(zip(vocab, probs)):\n    plt.text(i, prob + 0.02, f'{prob:.3f}', ha='center')\nplt.show()\n\n\n\n\n\n\n\n\nThe model might assign probabilities like: the: 0.52, a: 0.29, an: 0.13, some: 0.06"
-  },
-  {
-    "objectID": "posts/temperature-llms/index.html#the-mathematics-of-temperature",
-    "href": "posts/temperature-llms/index.html#the-mathematics-of-temperature",
-    "title": "How Temperature Actually Works in LLMs",
-    "section": "The Mathematics of Temperature",
-    "text": "The Mathematics of Temperature\nTemperature \\(T\\) is applied before the softmax function. The modified softmax becomes:\n\\[\nP(x_i) = \\frac{e^{z_i/T}}{\\sum_{j=1}^{n} e^{z_j/T}}\n\\]\nWhere: - \\(z_i\\) are the raw logits from the model - \\(T\\) is the temperature parameter - \\(P(x_i)\\) is the probability of token \\(i\\)\nFor those famiilar with, e.g., OpenAI’s API, you’re immediately wondering “wait I thought it was between 0 and 2? This could be between \\(\\epsilon &gt; 0\\) and \\(\\infty\\).” True - they basically normalize these values.\n\nWhat Different Temperatures Do\nOne way to think about this is it’s basically a dampening effect. When we say “creativity” we mean (I guess) “randomness”. Conversely, “deterministic” is just that.\n\ndef softmax_with_temperature(logits, temperature):\n    scaled_logits = logits / temperature\n    return softmax(scaled_logits)\n\ntemperatures = [0.1, 0.5, 1.0, 2.0, 5.0]\n\nfig, axes = plt.subplots(2, 3, figsize=(15, 8))\naxes = axes.flatten()\n\nfor idx, temp in enumerate(temperatures):\n    probs_temp = softmax_with_temperature(logits, temp)\n    \n    axes[idx].bar(vocab, probs_temp, color='steelblue')\n    axes[idx].set_ylabel('Probability')\n    axes[idx].set_title(f'Temperature = {temp}')\n    axes[idx].set_ylim(0, 1)\n    \n    for i, (word, prob) in enumerate(zip(vocab, probs_temp)):\n        axes[idx].text(i, prob + 0.02, f'{prob:.3f}', ha='center', fontsize=9)\n\n# Remove extra subplot\nfig.delaxes(axes[5])\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\nThe Entropy Perspective\nContinuing the comments above, we can sort of formalize this with entropy, thinking of it as a measure of the “randomness” of a distribution:\n\\[\nH(P) = -\\sum_{i=1}^{n} P(x_i) \\log P(x_i)\n\\]\nHigher temperature → higher entropy → more random outputs\n\ndef entropy(probs):\n    return -np.sum(probs * np.log(probs + 1e-10))\n\ntemp_range = np.linspace(0.1, 5.0, 100)\nentropies = [entropy(softmax_with_temperature(logits, t)) for t in temp_range]\n\nplt.figure(figsize=(10, 5))\nplt.plot(temp_range, entropies, linewidth=2, color='darkred')\nplt.xlabel('Temperature')\nplt.ylabel('Entropy (bits)')\nplt.title('How Temperature Affects Distribution Entropy')\nplt.grid(alpha=0.3)\nplt.show()"
-  },
-  {
-    "objectID": "posts/temperature-llms/index.html#real-implementation",
-    "href": "posts/temperature-llms/index.html#real-implementation",
-    "title": "How Temperature Actually Works in LLMs",
-    "section": "Real Implementation",
-    "text": "Real Implementation\nHere’s how this looks in actual PyTorch code:\nimport torch\nimport torch.nn.functional as F\n\ndef sample_with_temperature(logits, temperature=1.0):\n    \"\"\"\n    Sample from a language model with temperature scaling.\n    \n    Args:\n        logits: Raw output scores from model (shape: [vocab_size])\n        temperature: Sampling temperature (default: 1.0)\n    \n    Returns:\n        Sampled token index\n    \"\"\"\n    # Scale logits by temperature\n    scaled_logits = logits / temperature\n    \n    # Convert to probabilities\n    probs = F.softmax(scaled_logits, dim=-1)\n    \n    # Sample from the distribution\n    token_id = torch.multinomial(probs, num_samples=1)\n    \n    return token_id\n\n# Example usage\nlogits = torch.tensor([2.0, 1.0, 0.5, 0.1])\n\n# Sample 1000 times at different temperatures\nfor temp in [0.5, 1.0, 2.0]:\n    samples = [sample_with_temperature(logits, temp).item() \n               for _ in range(1000)]\n    \n    # Count occurrences\n    counts = np.bincount(samples, minlength=4)\n    empirical_probs = counts / 1000\n    \n    print(f\"\\nTemperature {temp}:\")\n    for word, prob in zip(vocab, empirical_probs):\n        print(f\"  {word}: {prob:.3f}\")"
-  },
-  {
-    "objectID": "posts/temperature-llms/index.html#heuristics",
-    "href": "posts/temperature-llms/index.html#heuristics",
-    "title": "How Temperature Actually Works in LLMs",
-    "section": "Heuristics",
-    "text": "Heuristics\nTemperature = 0: Not technically possible (division by zero), but temperature → 0 approximates greedy decoding (always pick the highest probability token). Thinking back to the definition and examples above, you basically exaggerate the differences in probabilities between the next tokens, so that eventually it’s deterministic or very close to it.\nTemperature &lt; 1: “Sharpens” the distribution, making high-probability tokens even more likely.\nTemperature = 1: No modification, the original model distribution.\nTemperature &gt; 1: “Flattens” the distribution, giving lower-probability tokens more chance."
-  },
-  {
-    "objectID": "posts/temperature-llms/index.html#practical-guidelines",
-    "href": "posts/temperature-llms/index.html#practical-guidelines",
-    "title": "How Temperature Actually Works in LLMs",
-    "section": "Practical Guidelines",
-    "text": "Practical Guidelines\nHere are some guidelines that you can find all over the internet (referencing the OpenAI normalized values). Better heuristics are available as well.\n\nT = 0.1-0.3: Factual tasks, code generation, when you need consistency\nT = 0.7-0.9: General conversation, slight creativity\nT = 1.0-1.5: Creative writing, brainstorming\nT = 2.0+: Experimental/chaotic, rarely useful"
-  },
-  {
-    "objectID": "posts/l1-versus-l2/index.html",
-    "href": "posts/l1-versus-l2/index.html",
-    "title": "Why can L₁ regularization perform feature selection?",
-    "section": "",
-    "text": "If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But why does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer is geometry."
-  },
-  {
-    "objectID": "posts/l1-versus-l2/index.html#introduction",
-    "href": "posts/l1-versus-l2/index.html#introduction",
-    "title": "Why can L₁ regularization perform feature selection?",
-    "section": "",
-    "text": "If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But why does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer is geometry."
-  },
-  {
-    "objectID": "posts/l1-versus-l2/index.html#the-setup-what-are-we-optimizing",
-    "href": "posts/l1-versus-l2/index.html#the-setup-what-are-we-optimizing",
-    "title": "Why can L₁ regularization perform feature selection?",
-    "section": "The Setup: What Are We Optimizing?",
-    "text": "The Setup: What Are We Optimizing?\nIn regularized regression, we’re trying to minimize a loss function plus a penalty term:\n\\[\n\\text{minimize: } \\mathcal{L}(\\mathbf{w}) + \\lambda \\cdot \\text{Penalty}(\\mathbf{w})\n\\]\nWhere: - \\(\\mathcal{L}(\\mathbf{w})\\) is our loss function (e.g., mean squared error) - \\(\\lambda\\) controls the regularization strength - The penalty differs between L₁ and L₂\nL₁ (Lasso) penalty: \\[\n\\text{Penalty}_{\\text{L1}} = \\sum_{i=1}^{n} |w_i|\n\\]\nL₂ (Ridge) penalty: \\[\n\\text{Penalty}_{\\text{L2}} = \\sum_{i=1}^{n} w_i^2\n\\]\nThe key question: why does one drive coefficients to exactly zero while the other doesn’t?\nNote there is good discussion of this all over the interent (https://stats.stackexchange.com/questions/96046/why-l1-norm-can-result-in-variable-selection-but-not-l2) and notably in Elements of Statistical Learning as well (which that posts references)."
-  },
-  {
-    "objectID": "posts/l1-versus-l2/index.html#the-geometric-intuition",
-    "href": "posts/l1-versus-l2/index.html#the-geometric-intuition",
-    "title": "Why can L₁ regularization perform feature selection?",
-    "section": "The Geometric Intuition",
-    "text": "The Geometric Intuition\nLet’s visualize this in 2D (two coefficients: \\(w_1\\) and \\(w_2\\)). We can reframe the optimization as a constrained problem:\nMinimize the loss subject to: \\[ L_1: |w_1| + |w_2| \\leq t \\] \\[ L_2: w_1^2 + w_2^2 \\leq t \\]\nRunning some boilerplate code below gives us the diagram that follows\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Create figure with two subplots\nfig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))\n\n# L1 constraint region (diamond)\nt = 1.0\nw1_l1 = np.array([t, 0, -t, 0, t])\nw2_l1 = np.array([0, t, 0, -t, 0])\n\nax1.fill(w1_l1, w2_l1, alpha=0.3, color='blue', label='Feasible region')\nax1.plot(w1_l1, w2_l1, 'b-', linewidth=2)\nax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax1.axvline(x=0, color='k', linestyle='-', alpha=0.3)\nax1.set_xlabel('w₁', fontsize=12)\nax1.set_ylabel('w₂', fontsize=12)\nax1.set_title('L₁ Constraint: |w₁| + |w₂| ≤ 1', fontsize=14)\nax1.set_xlim(-1.5, 1.5)\nax1.set_ylim(-1.5, 1.5)\nax1.grid(alpha=0.3)\nax1.legend()\n\n# L2 constraint region (circle)\ntheta = np.linspace(0, 2*np.pi, 100)\nw1_l2 = t * np.cos(theta)\nw2_l2 = t * np.sin(theta)\n\nax2.fill(w1_l2, w2_l2, alpha=0.3, color='red', label='Feasible region')\nax2.plot(w1_l2, w2_l2, 'r-', linewidth=2)\nax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax2.axvline(x=0, color='k', linestyle='-', alpha=0.3)\nax2.set_xlabel('w₁', fontsize=12)\nax2.set_ylabel('w₂', fontsize=12)\nax2.set_title('L₂ Constraint: w₁² + w₂² ≤ 1', fontsize=14)\nax2.set_xlim(-1.5, 1.5)\nax2.set_ylim(-1.5, 1.5)\nax2.grid(alpha=0.3)\nax2.legend()\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nNothing surprising here, just a buch of code to tell us that the formula already does: one is a square, one is a circle. Why is that important?"
-  },
-  {
-    "objectID": "posts/l1-versus-l2/index.html#where-solutions-live",
-    "href": "posts/l1-versus-l2/index.html#where-solutions-live",
-    "title": "Why can L₁ regularization perform feature selection?",
-    "section": "Where Solutions Live",
-    "text": "Where Solutions Live\nThe key realization is: the optimal solution occurs where the loss function contours (ellipses centered at the unconstrained minimum) first touch the constraint region.\nLet’s plot to see what that looks like (I tried but the diagram linked above is better, so just reference that)\nThe key insight:\n\n\\(L_1\\): The diamond has corners that lie exactly on the axes. When the loss contours expand outward and touch the constraint region, they’re very likely to hit a corner first — where one or more coefficients are exactly zero.\n\\(L_2\\): The circle has no corners. The loss contours will touch it at some smooth point where all coefficients are small but non-zero."
-  },
-  {
-    "objectID": "posts/l1-versus-l2/index.html#the-gradient-perspective",
-    "href": "posts/l1-versus-l2/index.html#the-gradient-perspective",
-    "title": "Why can L₁ regularization perform feature selection?",
-    "section": "The Gradient Perspective",
-    "text": "The Gradient Perspective\nThere’s another way to understand this: look at the gradients.\nL₁ gradient: \\[\n\\frac{\\partial}{\\partial w_i} |w_i| = \\begin{cases}\n+1 & \\text{if } w_i &gt; 0 \\\\\n-1 & \\text{if } w_i &lt; 0 \\\\\n\\text{undefined} & \\text{if } w_i = 0\n\\end{cases}\n\\]\nThe gradient is constant regardless of how small \\(w_i\\) gets! This creates a “constant push” toward zero.\nL₂ gradient: \\[\n\\frac{\\partial}{\\partial w_i} w_i^2 = 2w_i\n\\]\nAs \\(w_i\\) approaches zero, the gradient also approaches zero. The “push” weakens, so coefficients get very small but never quite reach zero.\n\n# Visualize the penalty and gradient behavior\nw = np.linspace(-2, 2, 1000)\nl1_penalty = np.abs(w)\nl2_penalty = w**2\n\n# Gradients (subgradient for L1 at 0)\nl1_grad = np.sign(w)\nl1_grad[w == 0] = 0  # Convention for visualization\nl2_grad = 2 * w\n\nfig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))\n\n# Penalty functions\nax1.plot(w, l1_penalty, 'b-', linewidth=2, label='L₁: |w|')\nax1.plot(w, l2_penalty, 'r-', linewidth=2, label='L₂: w²')\nax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax1.axvline(x=0, color='k', linestyle='--', alpha=0.3)\nax1.set_xlabel('w', fontsize=12)\nax1.set_ylabel('Penalty', fontsize=12)\nax1.set_title('Penalty Functions', fontsize=14)\nax1.legend(fontsize=11)\nax1.grid(alpha=0.3)\nax1.set_ylim(-0.1, 2)\n\n# Gradients\nax2.plot(w, l1_grad, 'b-', linewidth=2, label='∂|w|/∂w (constant)')\nax2.plot(w, l2_grad, 'r-', linewidth=2, label='∂w²/∂w = 2w (linear)')\nax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax2.axvline(x=0, color='k', linestyle='--', alpha=0.3)\nax2.set_xlabel('w', fontsize=12)\nax2.set_ylabel('Gradient', fontsize=12)\nax2.set_title('Gradient Behavior', fontsize=14)\nax2.legend(fontsize=11)\nax2.grid(alpha=0.3)\nax2.set_ylim(-2.5, 2.5)\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nNotice: L₁’s gradient stays at ±1 no matter how small the weight is, maintaining constant pressure to reach exactly zero. L₂’s gradient weakens as weights shrink, never quite finishing the job."
+    "text": "Welcome to my technical deep dives! Every week (ish (I hope)) I explore how something interesting actually works under the hood.\nNote: none of this is original research, it is just summary to help with my own understanding. I also make frequent use of LLMs to generate exmaple code, figures, etc.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSearching in vector DBs: BM25 and semantic search\n\n\n\nsearch\n\ninformation-retrieval\n\nvector-databases\n\nnlp\n\nembeddings\n\n\n\n\n\n\n\n\n\nOct 27, 2025\n\n\nDerek Allums\n\n\n\n\n\n\n\n\n\n\n\n\nWhy can L₁ regularization perform feature selection?\n\n\n\nregularization\n\ndata-science\n\nmachine-learning\n\nlasso\n\nl1\n\nridge\n\nl2\n\n\n\n\n\n\n\n\n\nOct 11, 2025\n\n\nDerek Allums\n\n\n\n\n\n\n\n\n\n\n\n\nHow Temperature Actually Works in LLMs\n\n\n\ntemperature\n\nllms\n\nmachine-learning\n\nRAG\n\n\n\n\n\n\n\n\n\nOct 11, 2025\n\n\nDerek Allums\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/searching-in-vector-dbs/index.html",
@@ -116,7 +60,7 @@
     "href": "posts/searching-in-vector-dbs/index.html#the-problem-with-pure-semantic-search",
     "title": "Searching in vector DBs: BM25 and semantic search",
     "section": "The Problem with Pure Semantic Search",
-    "text": "The Problem with Pure Semantic Search\nImagine you’re searching for documents about “GPT-4” in a database. With pure embedding search:\n\nimport numpy as np\nfrom sklearn.metrics.pairwise import cosine_similarity\n\n# Simplified: query and document embeddings\nquery_embedding = np.random.randn(1, 768)  # \"GPT-4\"\ndoc1_embedding = np.random.randn(1, 768)   # Contains \"GPT-4\"\ndoc2_embedding = np.random.randn(1, 768)   # About \"large language models\"\n\n# Semantic similarity\nsim1 = cosine_similarity(query_embedding, doc1_embedding)[0][0]\nsim2 = cosine_similarity(query_embedding, doc2_embedding)[0][0]\n\nprint(f\"Document mentioning 'GPT-4': {sim1:.3f}\")\nprint(f\"Document about LLMs generally: {sim2:.3f}\")\n\nDocument mentioning 'GPT-4': 0.003\nDocument about LLMs generally: -0.028\n\n\nThe issue? Embeddings might rate a document about “large language models in general” as more semantically similar than a document that explicitly mentions “GPT-4”, even though you wanted exact matches.\nSemantic search fails at: - Exact keyword matches (product codes, names, technical terms) - Rare or new terms the embedding model wasn’t trained on - Cases where word frequency matters (“mentioned 10 times” vs “mentioned once”)\nThis is where BM25 shines."
+    "text": "The Problem with Pure Semantic Search\nImagine you’re searching for documents about “GPT-4” in a database. With pure embedding search:\n\nimport numpy as np\nfrom sklearn.metrics.pairwise import cosine_similarity\n\n# Simplified: query and document embeddings\nquery_embedding = np.random.randn(1, 768)  # \"GPT-4\"\ndoc1_embedding = np.random.randn(1, 768)   # Contains \"GPT-4\"\ndoc2_embedding = np.random.randn(1, 768)   # About \"large language models\"\n\n# Semantic similarity\nsim1 = cosine_similarity(query_embedding, doc1_embedding)[0][0]\nsim2 = cosine_similarity(query_embedding, doc2_embedding)[0][0]\n\nprint(f\"Document mentioning 'GPT-4': {sim1:.3f}\")\nprint(f\"Document about LLMs generally: {sim2:.3f}\")\n\nDocument mentioning 'GPT-4': 0.016\nDocument about LLMs generally: 0.003\n\n\nThe issue? Embeddings might rate a document about “large language models in general” as more semantically similar than a document that explicitly mentions “GPT-4”, even though you wanted exact matches.\nSemantic search fails at: - Exact keyword matches (product codes, names, technical terms) - Rare or new terms the embedding model wasn’t trained on - Cases where word frequency matters (“mentioned 10 times” vs “mentioned once”)\nThis is where BM25 shines."
   },
   {
     "objectID": "posts/searching-in-vector-dbs/index.html#what-is-bm25",
@@ -189,10 +133,101 @@
     "text": "The Bottom Line\nBM25 isn’t obsolete - it’s complementary. While embeddings capture semantic meaning beautifully, BM25 excels at exact keyword matching and term frequency analysis. Real production systems use both.\nThe 40-year-old algorithm survives because it solves problems that pure neural approaches don’t: exact matches, rare terms, and interpretable scores. Combined with modern embeddings, you get the best of both worlds.\nNext time you’re building search, don’t choose between BM25 and vectors. Use both."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "This Week I Learned",
+    "objectID": "posts/l1-versus-l2/index.html",
+    "href": "posts/l1-versus-l2/index.html",
+    "title": "Why can L₁ regularization perform feature selection?",
     "section": "",
-    "text": "Welcome to my technical deep dives! Every week (ish (I hope)) I explore how something interesting actually works under the hood.\nNote: none of this is original research, it is just summary to help with my own understanding. I also make frequent use of LLMs to generate exmaple code, figures, etc.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSearching in vector DBs: BM25 and semantic search\n\n\n\nsearch\n\ninformation-retrieval\n\nvector-databases\n\nnlp\n\nembeddings\n\n\n\n\n\n\n\n\n\nOct 27, 2025\n\n\nDerek Allums\n\n\n\n\n\n\n\n\n\n\n\n\nWhy can L₁ regularization perform feature selection?\n\n\n\nregularization\n\ndata-science\n\nmachine-learning\n\nlasso\n\nl1\n\nridge\n\nl2\n\n\n\n\n\n\n\n\n\nOct 11, 2025\n\n\nDerek Allums\n\n\n\n\n\n\n\n\n\n\n\n\nHow Temperature Actually Works in LLMs\n\n\n\ntemperature\n\nllms\n\nmachine-learning\n\nRAG\n\n\n\n\n\n\n\n\n\nOct 11, 2025\n\n\nDerek Allums\n\n\n\n\n\nNo matching items"
+    "text": "If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But why does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer is geometry."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#introduction",
+    "href": "posts/l1-versus-l2/index.html#introduction",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "",
+    "text": "If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But why does L₁ regularization zero out coefficients while L₂ just makes them smaller? The answer is geometry."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#the-setup-what-are-we-optimizing",
+    "href": "posts/l1-versus-l2/index.html#the-setup-what-are-we-optimizing",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "The Setup: What Are We Optimizing?",
+    "text": "The Setup: What Are We Optimizing?\nIn regularized regression, we’re trying to minimize a loss function plus a penalty term:\n\\[\n\\text{minimize: } \\mathcal{L}(\\mathbf{w}) + \\lambda \\cdot \\text{Penalty}(\\mathbf{w})\n\\]\nWhere: - \\(\\mathcal{L}(\\mathbf{w})\\) is our loss function (e.g., mean squared error) - \\(\\lambda\\) controls the regularization strength - The penalty differs between L₁ and L₂\nL₁ (Lasso) penalty: \\[\n\\text{Penalty}_{\\text{L1}} = \\sum_{i=1}^{n} |w_i|\n\\]\nL₂ (Ridge) penalty: \\[\n\\text{Penalty}_{\\text{L2}} = \\sum_{i=1}^{n} w_i^2\n\\]\nThe key question: why does one drive coefficients to exactly zero while the other doesn’t?\nNote there is good discussion of this all over the interent (https://stats.stackexchange.com/questions/96046/why-l1-norm-can-result-in-variable-selection-but-not-l2) and notably in Elements of Statistical Learning as well (which that posts references)."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#the-geometric-intuition",
+    "href": "posts/l1-versus-l2/index.html#the-geometric-intuition",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "The Geometric Intuition",
+    "text": "The Geometric Intuition\nLet’s visualize this in 2D (two coefficients: \\(w_1\\) and \\(w_2\\)). We can reframe the optimization as a constrained problem:\nMinimize the loss subject to: \\[ L_1: |w_1| + |w_2| \\leq t \\] \\[ L_2: w_1^2 + w_2^2 \\leq t \\]\nRunning some boilerplate code below gives us the diagram that follows\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Create figure with two subplots\nfig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))\n\n# L1 constraint region (diamond)\nt = 1.0\nw1_l1 = np.array([t, 0, -t, 0, t])\nw2_l1 = np.array([0, t, 0, -t, 0])\n\nax1.fill(w1_l1, w2_l1, alpha=0.3, color='blue', label='Feasible region')\nax1.plot(w1_l1, w2_l1, 'b-', linewidth=2)\nax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax1.axvline(x=0, color='k', linestyle='-', alpha=0.3)\nax1.set_xlabel('w₁', fontsize=12)\nax1.set_ylabel('w₂', fontsize=12)\nax1.set_title('L₁ Constraint: |w₁| + |w₂| ≤ 1', fontsize=14)\nax1.set_xlim(-1.5, 1.5)\nax1.set_ylim(-1.5, 1.5)\nax1.grid(alpha=0.3)\nax1.legend()\n\n# L2 constraint region (circle)\ntheta = np.linspace(0, 2*np.pi, 100)\nw1_l2 = t * np.cos(theta)\nw2_l2 = t * np.sin(theta)\n\nax2.fill(w1_l2, w2_l2, alpha=0.3, color='red', label='Feasible region')\nax2.plot(w1_l2, w2_l2, 'r-', linewidth=2)\nax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax2.axvline(x=0, color='k', linestyle='-', alpha=0.3)\nax2.set_xlabel('w₁', fontsize=12)\nax2.set_ylabel('w₂', fontsize=12)\nax2.set_title('L₂ Constraint: w₁² + w₂² ≤ 1', fontsize=14)\nax2.set_xlim(-1.5, 1.5)\nax2.set_ylim(-1.5, 1.5)\nax2.grid(alpha=0.3)\nax2.legend()\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nNothing surprising here, just a buch of code to tell us that the formula already does: one is a square, one is a circle. Why is that important?"
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#where-solutions-live",
+    "href": "posts/l1-versus-l2/index.html#where-solutions-live",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "Where Solutions Live",
+    "text": "Where Solutions Live\nThe key realization is: the optimal solution occurs where the loss function contours (ellipses centered at the unconstrained minimum) first touch the constraint region.\nLet’s plot to see what that looks like (I tried but the diagram linked above is better, so just reference that)\nThe key insight:\n\n\\(L_1\\): The diamond has corners that lie exactly on the axes. When the loss contours expand outward and touch the constraint region, they’re very likely to hit a corner first — where one or more coefficients are exactly zero.\n\\(L_2\\): The circle has no corners. The loss contours will touch it at some smooth point where all coefficients are small but non-zero."
+  },
+  {
+    "objectID": "posts/l1-versus-l2/index.html#the-gradient-perspective",
+    "href": "posts/l1-versus-l2/index.html#the-gradient-perspective",
+    "title": "Why can L₁ regularization perform feature selection?",
+    "section": "The Gradient Perspective",
+    "text": "The Gradient Perspective\nThere’s another way to understand this: look at the gradients.\nL₁ gradient: \\[\n\\frac{\\partial}{\\partial w_i} |w_i| = \\begin{cases}\n+1 & \\text{if } w_i &gt; 0 \\\\\n-1 & \\text{if } w_i &lt; 0 \\\\\n\\text{undefined} & \\text{if } w_i = 0\n\\end{cases}\n\\]\nThe gradient is constant regardless of how small \\(w_i\\) gets! This creates a “constant push” toward zero.\nL₂ gradient: \\[\n\\frac{\\partial}{\\partial w_i} w_i^2 = 2w_i\n\\]\nAs \\(w_i\\) approaches zero, the gradient also approaches zero. The “push” weakens, so coefficients get very small but never quite reach zero.\n\n# Visualize the penalty and gradient behavior\nw = np.linspace(-2, 2, 1000)\nl1_penalty = np.abs(w)\nl2_penalty = w**2\n\n# Gradients (subgradient for L1 at 0)\nl1_grad = np.sign(w)\nl1_grad[w == 0] = 0  # Convention for visualization\nl2_grad = 2 * w\n\nfig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))\n\n# Penalty functions\nax1.plot(w, l1_penalty, 'b-', linewidth=2, label='L₁: |w|')\nax1.plot(w, l2_penalty, 'r-', linewidth=2, label='L₂: w²')\nax1.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax1.axvline(x=0, color='k', linestyle='--', alpha=0.3)\nax1.set_xlabel('w', fontsize=12)\nax1.set_ylabel('Penalty', fontsize=12)\nax1.set_title('Penalty Functions', fontsize=14)\nax1.legend(fontsize=11)\nax1.grid(alpha=0.3)\nax1.set_ylim(-0.1, 2)\n\n# Gradients\nax2.plot(w, l1_grad, 'b-', linewidth=2, label='∂|w|/∂w (constant)')\nax2.plot(w, l2_grad, 'r-', linewidth=2, label='∂w²/∂w = 2w (linear)')\nax2.axhline(y=0, color='k', linestyle='-', alpha=0.3)\nax2.axvline(x=0, color='k', linestyle='--', alpha=0.3)\nax2.set_xlabel('w', fontsize=12)\nax2.set_ylabel('Gradient', fontsize=12)\nax2.set_title('Gradient Behavior', fontsize=14)\nax2.legend(fontsize=11)\nax2.grid(alpha=0.3)\nax2.set_ylim(-2.5, 2.5)\n\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nNotice: L₁’s gradient stays at ±1 no matter how small the weight is, maintaining constant pressure to reach exactly zero. L₂’s gradient weakens as weights shrink, never quite finishing the job."
+  },
+  {
+    "objectID": "posts/temperature-llms/index.html",
+    "href": "posts/temperature-llms/index.html",
+    "title": "How Temperature Actually Works in LLMs",
+    "section": "",
+    "text": "Every time you use an LLM, there’s a parameter called “temperature” typically set at \\(0.7\\) or even hidden from the user, fundamentally shaping how creative or conservative the responses are.\nBut what’s actually happening under the hood?"
+  },
+  {
+    "objectID": "posts/temperature-llms/index.html#introduction",
+    "href": "posts/temperature-llms/index.html#introduction",
+    "title": "How Temperature Actually Works in LLMs",
+    "section": "",
+    "text": "Every time you use an LLM, there’s a parameter called “temperature” typically set at \\(0.7\\) or even hidden from the user, fundamentally shaping how creative or conservative the responses are.\nBut what’s actually happening under the hood?"
+  },
+  {
+    "objectID": "posts/temperature-llms/index.html#the-core-problem-probability-distributions",
+    "href": "posts/temperature-llms/index.html#the-core-problem-probability-distributions",
+    "title": "How Temperature Actually Works in LLMs",
+    "section": "The Core Problem: Probability Distributions",
+    "text": "The Core Problem: Probability Distributions\nAt its core, a language model outputs a probability distribution over its vocabulary for the next token.\nHere’s a toy example on a simple vocabulary of 4 words:\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Raw logits from the model\nlogits = np.array([2.0, 1.0, 0.5, 0.1])\nvocab = ['the', 'a', 'an', 'some']\n\n# Convert to probabilities with softmax\ndef softmax(x):\n    exp_x = np.exp(x - np.max(x))  # Subtract max for numerical stability\n    return exp_x / exp_x.sum()\n\nprobs = softmax(logits)\n\n# Visualize\nplt.figure(figsize=(10, 5))\nplt.bar(vocab, probs, color='steelblue')\nplt.ylabel('Probability')\nplt.title('Token Probabilities (Temperature = 1.0)')\nplt.ylim(0, 1)\nfor i, (word, prob) in enumerate(zip(vocab, probs)):\n    plt.text(i, prob + 0.02, f'{prob:.3f}', ha='center')\nplt.show()\n\n\n\n\n\n\n\n\nThe model might assign probabilities like: the: 0.52, a: 0.29, an: 0.13, some: 0.06"
+  },
+  {
+    "objectID": "posts/temperature-llms/index.html#the-mathematics-of-temperature",
+    "href": "posts/temperature-llms/index.html#the-mathematics-of-temperature",
+    "title": "How Temperature Actually Works in LLMs",
+    "section": "The Mathematics of Temperature",
+    "text": "The Mathematics of Temperature\nTemperature \\(T\\) is applied before the softmax function. The modified softmax becomes:\n\\[\nP(x_i) = \\frac{e^{z_i/T}}{\\sum_{j=1}^{n} e^{z_j/T}}\n\\]\nWhere: - \\(z_i\\) are the raw logits from the model - \\(T\\) is the temperature parameter - \\(P(x_i)\\) is the probability of token \\(i\\)\nFor those famiilar with, e.g., OpenAI’s API, you’re immediately wondering “wait I thought it was between 0 and 2? This could be between \\(\\epsilon &gt; 0\\) and \\(\\infty\\).” True - they basically normalize these values.\n\nWhat Different Temperatures Do\nOne way to think about this is it’s basically a dampening effect. When we say “creativity” we mean (I guess) “randomness”. Conversely, “deterministic” is just that.\n\ndef softmax_with_temperature(logits, temperature):\n    scaled_logits = logits / temperature\n    return softmax(scaled_logits)\n\ntemperatures = [0.1, 0.5, 1.0, 2.0, 5.0]\n\nfig, axes = plt.subplots(2, 3, figsize=(15, 8))\naxes = axes.flatten()\n\nfor idx, temp in enumerate(temperatures):\n    probs_temp = softmax_with_temperature(logits, temp)\n    \n    axes[idx].bar(vocab, probs_temp, color='steelblue')\n    axes[idx].set_ylabel('Probability')\n    axes[idx].set_title(f'Temperature = {temp}')\n    axes[idx].set_ylim(0, 1)\n    \n    for i, (word, prob) in enumerate(zip(vocab, probs_temp)):\n        axes[idx].text(i, prob + 0.02, f'{prob:.3f}', ha='center', fontsize=9)\n\n# Remove extra subplot\nfig.delaxes(axes[5])\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\nThe Entropy Perspective\nContinuing the comments above, we can sort of formalize this with entropy, thinking of it as a measure of the “randomness” of a distribution:\n\\[\nH(P) = -\\sum_{i=1}^{n} P(x_i) \\log P(x_i)\n\\]\nHigher temperature → higher entropy → more random outputs\n\ndef entropy(probs):\n    return -np.sum(probs * np.log(probs + 1e-10))\n\ntemp_range = np.linspace(0.1, 5.0, 100)\nentropies = [entropy(softmax_with_temperature(logits, t)) for t in temp_range]\n\nplt.figure(figsize=(10, 5))\nplt.plot(temp_range, entropies, linewidth=2, color='darkred')\nplt.xlabel('Temperature')\nplt.ylabel('Entropy (bits)')\nplt.title('How Temperature Affects Distribution Entropy')\nplt.grid(alpha=0.3)\nplt.show()"
+  },
+  {
+    "objectID": "posts/temperature-llms/index.html#real-implementation",
+    "href": "posts/temperature-llms/index.html#real-implementation",
+    "title": "How Temperature Actually Works in LLMs",
+    "section": "Real Implementation",
+    "text": "Real Implementation\nHere’s how this looks in actual PyTorch code:\nimport torch\nimport torch.nn.functional as F\n\ndef sample_with_temperature(logits, temperature=1.0):\n    \"\"\"\n    Sample from a language model with temperature scaling.\n    \n    Args:\n        logits: Raw output scores from model (shape: [vocab_size])\n        temperature: Sampling temperature (default: 1.0)\n    \n    Returns:\n        Sampled token index\n    \"\"\"\n    # Scale logits by temperature\n    scaled_logits = logits / temperature\n    \n    # Convert to probabilities\n    probs = F.softmax(scaled_logits, dim=-1)\n    \n    # Sample from the distribution\n    token_id = torch.multinomial(probs, num_samples=1)\n    \n    return token_id\n\n# Example usage\nlogits = torch.tensor([2.0, 1.0, 0.5, 0.1])\n\n# Sample 1000 times at different temperatures\nfor temp in [0.5, 1.0, 2.0]:\n    samples = [sample_with_temperature(logits, temp).item() \n               for _ in range(1000)]\n    \n    # Count occurrences\n    counts = np.bincount(samples, minlength=4)\n    empirical_probs = counts / 1000\n    \n    print(f\"\\nTemperature {temp}:\")\n    for word, prob in zip(vocab, empirical_probs):\n        print(f\"  {word}: {prob:.3f}\")"
+  },
+  {
+    "objectID": "posts/temperature-llms/index.html#heuristics",
+    "href": "posts/temperature-llms/index.html#heuristics",
+    "title": "How Temperature Actually Works in LLMs",
+    "section": "Heuristics",
+    "text": "Heuristics\nTemperature = 0: Not technically possible (division by zero), but temperature → 0 approximates greedy decoding (always pick the highest probability token). Thinking back to the definition and examples above, you basically exaggerate the differences in probabilities between the next tokens, so that eventually it’s deterministic or very close to it.\nTemperature &lt; 1: “Sharpens” the distribution, making high-probability tokens even more likely.\nTemperature = 1: No modification, the original model distribution.\nTemperature &gt; 1: “Flattens” the distribution, giving lower-probability tokens more chance."
+  },
+  {
+    "objectID": "posts/temperature-llms/index.html#practical-guidelines",
+    "href": "posts/temperature-llms/index.html#practical-guidelines",
+    "title": "How Temperature Actually Works in LLMs",
+    "section": "Practical Guidelines",
+    "text": "Practical Guidelines\nHere are some guidelines that you can find all over the internet (referencing the OpenAI normalized values). Better heuristics are available as well.\n\nT = 0.1-0.3: Factual tasks, code generation, when you need consistency\nT = 0.7-0.9: General conversation, slight creativity\nT = 1.0-1.5: Creative writing, brainstorming\nT = 2.0+: Experimental/chaotic, rarely useful"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "My name is Derek Allums, I have a PhD in math and have spent most of my career as a data scientist and recently a data engineer. I realized there are a lot of topics I have some passing familiarity with, e.g., “\\(L_1\\) regularization sometimes acts as feature selection”, but for many of these, how it works under the hood isn’t as clear (in this case, it comes back to geometry - see my second post).\nThe goal of this blog is to provide an outlet for these explorations in the hopes that maybe it could be useful for others - but mainly for me, since I find there’s no better way to understand something than to write about it since any gaps in the understanding become very clear.\nNote: none of this is original research, it is just summary to help with my own understanding. I also make frequent use of LLMs to generate exmaple code, figures, etc."
   }
 ]

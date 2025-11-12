@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>This Week I Learned</title>
+<title>Links – This Week I Learned</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -70,66 +68,7 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-<meta name="google-site-verification" content="u5zFQrhzv271WcfHqnSzbYs8yaCVETWFOWnyLxvfxnY">
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
@@ -153,7 +92,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
@@ -161,7 +100,7 @@ window.Quarto = {
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./links.html"> 
+    <a class="nav-link active" href="./links.html" aria-current="page"> 
 <span class="menu-text">Links</span></a>
   </li>  
 </ul>
@@ -176,14 +115,23 @@ window.Quarto = {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(3)</span></div><div class="category" data-category="ZGF0YS1zY2llbmNl">data-science <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZW1iZWRkaW5ncw==">embeddings <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aW5mb3JtYXRpb24tcmV0cmlldmFs">information-retrieval <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bDE=">l1 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bDI=">l2 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bGFzc28=">lasso <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bGxtcw==">llms <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bWFjaGluZS1sZWFybmluZw==">machine-learning <span class="quarto-category-count">(2)</span></div><div class="category" data-category="bmxw">nlp <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UkFH">RAG <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cmVndWxhcml6YXRpb24=">regularization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cmlkZ2U=">ridge <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c2VhcmNo">search <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dGVtcGVyYXR1cmU=">temperature <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dmVjdG9yLWRhdGFiYXNlcw==">vector-databases <span class="quarto-category-count">(1)</span></div></div></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#papers" id="toc-papers" class="nav-link active" data-scroll-target="#papers">Papers</a></li>
+  <li><a href="#profiles" id="toc-profiles" class="nav-link" data-scroll-target="#profiles">Profiles</a></li>
+  <li><a href="#projects" id="toc-projects" class="nav-link" data-scroll-target="#projects">Projects</a></li>
+  <li><a href="#other" id="toc-other" class="nav-link" data-scroll-target="#other">Other</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">This Week I Learned</h1>
+<h1 class="title">Links</h1>
 </div>
 
 
@@ -200,133 +148,41 @@ window.Quarto = {
 </header>
 
 
-<p>Welcome to my technical deep dives! Every week (ish (I hope)) I explore how something interesting actually works under the hood.</p>
-<p>Note: none of this is original research, it is just summary to help with my own understanding. I also make frequent use of LLMs to generate exmaple code, figures, etc.</p>
+<p>[TODO: fill in with real links, just testing for now]</p>
+<section id="papers" class="level2">
+<h2 class="anchored" data-anchor-id="papers">Papers</h2>
+<ul>
+<li><a href="https://arxiv.org/...">My Paper Title</a> - Brief description of what it’s about</li>
+<li><a href="https://link-to-paper.com">Another Paper</a> - What this one covers</li>
+</ul>
+</section>
+<section id="profiles" class="level2">
+<h2 class="anchored" data-anchor-id="profiles">Profiles</h2>
+<ul>
+<li><a href="https://github.com/derek-allums">GitHub</a></li>
+<li><a href="https://linkedin.com/in/your-profile">LinkedIn</a></li>
+<li><a href="https://twitter.com/yourhandle">Twitter/X</a></li>
+<li><a href="https://scholar.google.com/your-profile">Google Scholar</a></li>
+</ul>
+</section>
+<section id="projects" class="level2">
+<h2 class="anchored" data-anchor-id="projects">Projects</h2>
+<ul>
+<li><a href="https://github.com/derek-allums/project">Cool Project Name</a> - What it does</li>
+<li><a href="https://link.com">Another Project</a> - Brief description</li>
+</ul>
+</section>
+<section id="other" class="level2">
+<h2 class="anchored" data-anchor-id="other">Other</h2>
+<ul>
+<li><a href="https://yoursite.com">Personal website</a></li>
+<li><a href="mailto:your@email.com">Email</a></li>
+</ul>
 
 
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="c2VhcmNoJTJDaW5mb3JtYXRpb24tcmV0cmlldmFsJTJDdmVjdG9yLWRhdGFiYXNlcyUyQ25scCUyQ2VtYmVkZGluZ3M=" data-listing-date-sort="1761519600000" data-listing-file-modified-sort="1761548132015" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2212">
-<div class="thumbnail"><a href="./posts/searching-in-vector-dbs/index.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/searching-in-vector-dbs/index_files/figure-html/cell-3-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/searching-in-vector-dbs/index.html" class="no-external">Searching in vector DBs: BM25 and semantic search</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('c2VhcmNo'); return false;">search</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('aW5mb3JtYXRpb24tcmV0cmlldmFs'); return false;">information-retrieval</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('dmVjdG9yLWRhdGFiYXNlcw=='); return false;">vector-databases</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bmxw'); return false;">nlp</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('ZW1iZWRkaW5ncw=='); return false;">embeddings</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/searching-in-vector-dbs/index.html" class="no-external">
-Vector databases are everywhere now - storing embeddings and doing semantic search with cosine similarity. But here’s something interesting: most production vector databases…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/searching-in-vector-dbs/index.html" class="no-external">
-<div class="listing-date">
-Oct 27, 2025
-</div>
-<div class="listing-author">
-Derek Allums
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="cmVndWxhcml6YXRpb24lMkNkYXRhLXNjaWVuY2UlMkNtYWNoaW5lLWxlYXJuaW5nJTJDbGFzc28lMkNsMSUyQ3JpZGdlJTJDbDI=" data-listing-date-sort="1760133600000" data-listing-file-modified-sort="1760185712849" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="617">
-<div class="thumbnail"><a href="./posts/l1-versus-l2/index.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/l1-versus-l2/index_files/figure-html/cell-2-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/l1-versus-l2/index.html" class="no-external">Why can L₁ regularization perform feature selection?</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmVndWxhcml6YXRpb24='); return false;">regularization</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('ZGF0YS1zY2llbmNl'); return false;">data-science</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bWFjaGluZS1sZWFybmluZw=='); return false;">machine-learning</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bGFzc28='); return false;">lasso</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bDE='); return false;">l1</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cmlkZ2U='); return false;">ridge</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bDI='); return false;">l2</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/l1-versus-l2/index.html" class="no-external">
-If you’ve ever trained a regression model, you’ve probably heard: “Use L₁ for feature selection, L₂ for handling multicollinearity.” But <em>why</em> does L₁ regularization zero out…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/l1-versus-l2/index.html" class="no-external">
-<div class="listing-date">
-Oct 11, 2025
-</div>
-<div class="listing-author">
-Derek Allums
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="dGVtcGVyYXR1cmUlMkNsbG1zJTJDbWFjaGluZS1sZWFybmluZyUyQ1JBRw==" data-listing-date-sort="1760133600000" data-listing-file-modified-sort="1760187848741" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="805">
-<div class="thumbnail"><a href="./posts/temperature-llms/index.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/temperature-llms/index_files/figure-html/cell-2-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/temperature-llms/index.html" class="no-external">How Temperature Actually Works in LLMs</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('dGVtcGVyYXR1cmU='); return false;">temperature</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bGxtcw=='); return false;">llms</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bWFjaGluZS1sZWFybmluZw=='); return false;">machine-learning</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('UkFH'); return false;">RAG</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/temperature-llms/index.html" class="no-external">
-Every time you use an LLM, there’s a parameter called “temperature” typically set at <span class="math inline">\(0.7\)</span> or even hidden from the user, fundamentally shaping how creative or conservative…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/temperature-llms/index.html" class="no-external">
-<div class="listing-date">
-Oct 11, 2025
-</div>
-<div class="listing-author">
-Derek Allums
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
