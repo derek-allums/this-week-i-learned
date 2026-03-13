@@ -2,8 +2,6 @@
 title: "Links"
 ---
 
-[TODO: fill in with real links, just testing for now]
-
 ## Papers and such
 
 - [The rank gradient and the laplighter group](https://msp.org/involve/2011/4-3/p08.xhtml) - Joint with Rostislav Grigorchuk
@@ -16,9 +14,7 @@ title: "Links"
 ## Profiles
 
 - [GitHub](https://github.com/derek-allums)
-- [LinkedIn](https://linkedin.com/in/your-profile)
-- [Twitter/X](https://twitter.com/yourhandle)
-- [Google Scholar](https://scholar.google.com/your-profile)
+- [LinkedIn](https://www.linkedin.com/in/derekallums/)
 
 ## Stack Exchange profiles and interesting questions
 
@@ -45,3 +41,4 @@ Here are the links to my various Stack Exchange profiles and some questions that
 - [My entry on the math genealogy project](https://www.genealogy.math.ndsu.nodak.edu/id.php?id=211319)
 - [The academic genealogical tree of Joe Harris](https://people.math.ethz.ch/~rahul/JDH-mathgen.pdf)
 - [Summer 2010 REU at UNCG](https://home.uncg.edu/cmp/reu/summer2010/) - lots of fun, my first taste of formal math research
+- [My terrible powerlifting record](https://www.openpowerlifting.org/u/derekallums) - but it was a lot of fun
