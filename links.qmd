@@ -4,10 +4,14 @@ title: "Links"
 
 [TODO: fill in with real links, just testing for now]
 
-## Papers
+## Papers and such
 
-- [My Paper Title](https://arxiv.org/...) - Brief description of what it's about
-- [Another Paper](https://link-to-paper.com) - What this one covers
+- [The rank gradient and the laplighter group](https://msp.org/involve/2011/4-3/p08.xhtml) - Joint with Rostislav Grigorchuk
+- [Towards a classification of the ranks and border ranks of all $(3, 3, 3)$ trilinear forms](https://www.semanticscholar.org/paper/Toward-a-Classification-of-the-Ranks-and-Border-of-Allums/eddfc49c3ad29e9057d87d255040428aac62382c) - This was my undergrad thesis supervised by J.M. Landsberg
+- [Border rank of ternary trilinear forms and the $j$-invariant](https://projecteuclid.org/journals/involve-a-journal-of-mathematics/volume-8/issue-2/Border-rank-of-ternary-trilinear-forms-and-the-j-invariant/10.2140/involve.2015.8.345.full) - joint with J.M. Landsberg
+- [On real rationally connected varietes](https://www.mimuw.edu.pl/~gael/Poster/poster_Allums.pdf) - some fun results with Brendan Hassett we presented at GAEL in 2014 in Trieste, Italy
+- [Notes on real rationally connected varieties and fano threefolds of genus 12](https://repository.rice.edu/items/edd44353-a095-4477-bcd4-75f6b0039aba) - my PhD thesis, supervised by Brendan Hassett
+
 
 ## Profiles
 
@@ -26,7 +30,7 @@ Here are the links to my various Stack Exchange profiles and some questions that
   - [Le manque d’élision de « de ouf »](https://french.stackexchange.com/questions/49339/le-manque-d-%c3%a9lision-de-de-ouf)
 - [Software Engineering](https://softwareengineering.stackexchange.com/users/395542/derek-allums)
   - [When to *not* use SOLID principles](https://softwareengineering.stackexchange.com/questions/447532/when-to-not-use-solid-principles)
-    -[Which led to this video summarizing it](https://www.youtube.com/watch?v=nXl0wFukMCo) - I don't know this YouTuber, just thought it was interesting.
+    - [Which led to this video summarizing it](https://www.youtube.com/watch?v=nXl0wFukMCo) - I don't know this YouTuber, just thought it was interesting.
 - [Chess](https://chess.stackexchange.com/users/10779/derek-allums)
   - [Would studying the games of old players hurt my progress?](https://chess.stackexchange.com/questions/23322/would-studying-the-games-of-old-players-hurt-my-progress)
   - [Examples of harmony?](https://chess.stackexchange.com/questions/19922/examples-of-harmony)
@@ -37,5 +41,7 @@ Here are the links to my various Stack Exchange profiles and some questions that
 
 ## Other
 
-- [Personal website](https://yoursite.com)
-- [Email](mailto:your@email.com)
+- [Pictures of my thesis defense](https://www.facebook.com/RiceUMathematics/posts/derek-allums-defense-congratulations-derek/1449686031723982/)
+- [My entry on the math genealogy project](https://www.genealogy.math.ndsu.nodak.edu/id.php?id=211319)
+- [The academic genealogical tree of Joe Harris](https://people.math.ethz.ch/~rahul/JDH-mathgen.pdf)
+- [Summer 2010 REU at UNCG](https://home.uncg.edu/cmp/reu/summer2010/) - lots of fun, my first taste of formal math research

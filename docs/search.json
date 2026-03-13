@@ -7,11 +7,11 @@
     "text": "[TODO: fill in with real links, just testing for now]"
   },
   {
-    "objectID": "links.html#papers",
-    "href": "links.html#papers",
+    "objectID": "links.html#papers-and-such",
+    "href": "links.html#papers-and-such",
     "title": "Links",
-    "section": "Papers",
-    "text": "Papers\n\nMy Paper Title - Brief description of what it’s about\nAnother Paper - What this one covers"
+    "section": "Papers and such",
+    "text": "Papers and such\n\nThe rank gradient and the laplighter group - Joint with Rostislav Grigorchuk\nTowards a classification of the ranks and border ranks of all \\((3, 3, 3)\\) trilinear forms - This was my undergrad thesis supervised by J.M. Landsberg\nBorder rank of ternary trilinear forms and the \\(j\\)-invariant - joint with J.M. Landsberg\nOn real rationally connected varietes - some fun results with Brendan Hassett we presented at GAEL in 2014 in Trieste, Italy\nNotes on real rationally connected varieties and fano threefolds of genus 12 - my PhD thesis, supervised by Brendan Hassett"
   },
   {
     "objectID": "links.html#profiles",
@@ -25,14 +25,14 @@
     "href": "links.html#stack-exchange-profiles-and-interesting-questions",
     "title": "Links",
     "section": "Stack Exchange profiles and interesting questions",
-    "text": "Stack Exchange profiles and interesting questions\nHere are the links to my various Stack Exchange profiles and some questions that got some interesting answers.\n\nFrench\n\nLe tutoiement de Dieu ?\nWhat is « en » in « J’en ai marre de » ?\nLe manque d’élision de « de ouf »\n\nSoftware Engineering\n\nWhen to not use SOLID principles -Which led to this video summarizing it - I don’t know this YouTuber, just thought it was interesting.\n\nChess\n\nWould studying the games of old players hurt my progress?\nExamples of harmony?\n\nMathematics\n\nHow should I think about very ample sheaves?\nWhich definition of dimension came first?\nDoes there exist a category in which there are no products or coproducts for reasons other than the category is too small?"
+    "text": "Stack Exchange profiles and interesting questions\nHere are the links to my various Stack Exchange profiles and some questions that got some interesting answers.\n\nFrench\n\nLe tutoiement de Dieu ?\nWhat is « en » in « J’en ai marre de » ?\nLe manque d’élision de « de ouf »\n\nSoftware Engineering\n\nWhen to not use SOLID principles\n\nWhich led to this video summarizing it - I don’t know this YouTuber, just thought it was interesting.\n\n\nChess\n\nWould studying the games of old players hurt my progress?\nExamples of harmony?\n\nMathematics\n\nHow should I think about very ample sheaves?\nWhich definition of dimension came first?\nDoes there exist a category in which there are no products or coproducts for reasons other than the category is too small?"
   },
   {
     "objectID": "links.html#other",
     "href": "links.html#other",
     "title": "Links",
     "section": "Other",
-    "text": "Other\n\nPersonal website\nEmail"
+    "text": "Other\n\nPictures of my thesis defense\nMy entry on the math genealogy project\nThe academic genealogical tree of Joe Harris\nSummer 2010 REU at UNCG - lots of fun, my first taste of formal math research"
   },
   {
     "objectID": "index.html",
@@ -60,7 +60,7 @@
     "href": "posts/searching-in-vector-dbs/index.html#the-problem-with-pure-semantic-search",
     "title": "Searching in vector DBs: BM25 and semantic search",
     "section": "The Problem with Pure Semantic Search",
-    "text": "The Problem with Pure Semantic Search\nImagine you’re searching for documents about “GPT-4” in a database. With pure embedding search:\n\nimport numpy as np\nfrom sklearn.metrics.pairwise import cosine_similarity\n\n# Simplified: query and document embeddings\nquery_embedding = np.random.randn(1, 768)  # \"GPT-4\"\ndoc1_embedding = np.random.randn(1, 768)   # Contains \"GPT-4\"\ndoc2_embedding = np.random.randn(1, 768)   # About \"large language models\"\n\n# Semantic similarity\nsim1 = cosine_similarity(query_embedding, doc1_embedding)[0][0]\nsim2 = cosine_similarity(query_embedding, doc2_embedding)[0][0]\n\nprint(f\"Document mentioning 'GPT-4': {sim1:.3f}\")\nprint(f\"Document about LLMs generally: {sim2:.3f}\")\n\nDocument mentioning 'GPT-4': 0.000\nDocument about LLMs generally: -0.057\n\n\nThe issue? Embeddings might rate a document about “large language models in general” as more semantically similar than a document that explicitly mentions “GPT-4”, even though you wanted exact matches.\nSemantic search fails at: - Exact keyword matches (product codes, names, technical terms) - Rare or new terms the embedding model wasn’t trained on - Cases where word frequency matters (“mentioned 10 times” vs “mentioned once”)\nThis is where BM25 shines."
+    "text": "The Problem with Pure Semantic Search\nImagine you’re searching for documents about “GPT-4” in a database. With pure embedding search:\n\nimport numpy as np\nfrom sklearn.metrics.pairwise import cosine_similarity\n\n# Simplified: query and document embeddings\nquery_embedding = np.random.randn(1, 768)  # \"GPT-4\"\ndoc1_embedding = np.random.randn(1, 768)   # Contains \"GPT-4\"\ndoc2_embedding = np.random.randn(1, 768)   # About \"large language models\"\n\n# Semantic similarity\nsim1 = cosine_similarity(query_embedding, doc1_embedding)[0][0]\nsim2 = cosine_similarity(query_embedding, doc2_embedding)[0][0]\n\nprint(f\"Document mentioning 'GPT-4': {sim1:.3f}\")\nprint(f\"Document about LLMs generally: {sim2:.3f}\")\n\nDocument mentioning 'GPT-4': -0.040\nDocument about LLMs generally: 0.027\n\n\nThe issue? Embeddings might rate a document about “large language models in general” as more semantically similar than a document that explicitly mentions “GPT-4”, even though you wanted exact matches.\nSemantic search fails at: - Exact keyword matches (product codes, names, technical terms) - Rare or new terms the embedding model wasn’t trained on - Cases where word frequency matters (“mentioned 10 times” vs “mentioned once”)\nThis is where BM25 shines."
   },
   {
     "objectID": "posts/searching-in-vector-dbs/index.html#what-is-bm25",

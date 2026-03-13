@@ -69,6 +69,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -119,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#papers" id="toc-papers" class="nav-link active" data-scroll-target="#papers">Papers</a></li>
+  <li><a href="#papers-and-such" id="toc-papers-and-such" class="nav-link active" data-scroll-target="#papers-and-such">Papers and such</a></li>
   <li><a href="#profiles" id="toc-profiles" class="nav-link" data-scroll-target="#profiles">Profiles</a></li>
   <li><a href="#stack-exchange-profiles-and-interesting-questions" id="toc-stack-exchange-profiles-and-interesting-questions" class="nav-link" data-scroll-target="#stack-exchange-profiles-and-interesting-questions">Stack Exchange profiles and interesting questions</a></li>
   <li><a href="#other" id="toc-other" class="nav-link" data-scroll-target="#other">Other</a></li>
@@ -149,11 +178,14 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>[TODO: fill in with real links, just testing for now]</p>
-<section id="papers" class="level2">
-<h2 class="anchored" data-anchor-id="papers">Papers</h2>
+<section id="papers-and-such" class="level2">
+<h2 class="anchored" data-anchor-id="papers-and-such">Papers and such</h2>
 <ul>
-<li><a href="https://arxiv.org/...">My Paper Title</a> - Brief description of what it’s about</li>
-<li><a href="https://link-to-paper.com">Another Paper</a> - What this one covers</li>
+<li><a href="https://msp.org/involve/2011/4-3/p08.xhtml">The rank gradient and the laplighter group</a> - Joint with Rostislav Grigorchuk</li>
+<li><a href="https://www.semanticscholar.org/paper/Toward-a-Classification-of-the-Ranks-and-Border-of-Allums/eddfc49c3ad29e9057d87d255040428aac62382c">Towards a classification of the ranks and border ranks of all <span class="math inline">\((3, 3, 3)\)</span> trilinear forms</a> - This was my undergrad thesis supervised by J.M. Landsberg</li>
+<li><a href="https://projecteuclid.org/journals/involve-a-journal-of-mathematics/volume-8/issue-2/Border-rank-of-ternary-trilinear-forms-and-the-j-invariant/10.2140/involve.2015.8.345.full">Border rank of ternary trilinear forms and the <span class="math inline">\(j\)</span>-invariant</a> - joint with J.M. Landsberg</li>
+<li><a href="https://www.mimuw.edu.pl/~gael/Poster/poster_Allums.pdf">On real rationally connected varietes</a> - some fun results with Brendan Hassett we presented at GAEL in 2014 in Trieste, Italy</li>
+<li><a href="https://repository.rice.edu/items/edd44353-a095-4477-bcd4-75f6b0039aba">Notes on real rationally connected varieties and fano threefolds of genus 12</a> - my PhD thesis, supervised by Brendan Hassett</li>
 </ul>
 </section>
 <section id="profiles" class="level2">
@@ -177,7 +209,10 @@ ul.task-list li input[type="checkbox"] {
 </ul></li>
 <li><a href="https://softwareengineering.stackexchange.com/users/395542/derek-allums">Software Engineering</a>
 <ul>
-<li><a href="https://softwareengineering.stackexchange.com/questions/447532/when-to-not-use-solid-principles">When to <em>not</em> use SOLID principles</a> -<a href="https://www.youtube.com/watch?v=nXl0wFukMCo">Which led to this video summarizing it</a> - I don’t know this YouTuber, just thought it was interesting.</li>
+<li><a href="https://softwareengineering.stackexchange.com/questions/447532/when-to-not-use-solid-principles">When to <em>not</em> use SOLID principles</a>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=nXl0wFukMCo">Which led to this video summarizing it</a> - I don’t know this YouTuber, just thought it was interesting.</li>
+</ul></li>
 </ul></li>
 <li><a href="https://chess.stackexchange.com/users/10779/derek-allums">Chess</a>
 <ul>
@@ -195,8 +230,10 @@ ul.task-list li input[type="checkbox"] {
 <section id="other" class="level2">
 <h2 class="anchored" data-anchor-id="other">Other</h2>
 <ul>
-<li><a href="https://yoursite.com">Personal website</a></li>
-<li><a href="mailto:your@email.com">Email</a></li>
+<li><a href="https://www.facebook.com/RiceUMathematics/posts/derek-allums-defense-congratulations-derek/1449686031723982/">Pictures of my thesis defense</a></li>
+<li><a href="https://www.genealogy.math.ndsu.nodak.edu/id.php?id=211319">My entry on the math genealogy project</a></li>
+<li><a href="https://people.math.ethz.ch/~rahul/JDH-mathgen.pdf">The academic genealogical tree of Joe Harris</a></li>
+<li><a href="https://home.uncg.edu/cmp/reu/summer2010/">Summer 2010 REU at UNCG</a> - lots of fun, my first taste of formal math research</li>
 </ul>
 
 
