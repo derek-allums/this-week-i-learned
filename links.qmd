@@ -15,6 +15,7 @@ title: "Links"
 
 - [GitHub](https://github.com/derek-allums)
 - [LinkedIn](https://www.linkedin.com/in/derekallums/)
+- [LeetCode](https://leetcode.com/u/dallums/)
 
 ## Stack Exchange profiles and interesting questions
 
